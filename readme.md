@@ -10,7 +10,9 @@ https://mutually-learning-duckling.ngrok-free.app/fda_scan/
 
 # ABOUT THE TEAM
 Project นี้เป็น project จบของนักศึกษาหลักสูตรเทคโนโลยีสารสนเทศและเศรษฐกิจดิจิทัล มหาวิทยาลัยเทคโนโลยีราชมงคลสุวรรณภูมิ ศูนย์นนทบุรี ปีการศึกษา 2568 คือ
-**นายทัศนสมิทธ์ พรหมโสภา** และ **นายวัฒนเดช เสตกรณุกูล** โดยมี ดร.ธนพร ปฏิกรณ์ เป็นอาจารย์ที่ปรึกษา
+[นายทัศนสมิทธ์ พรหมโสภา](https://mutually-learning-duckling.ngrok-free.app/fda_scan/profile) และ 
+[นายวัฒนเดช เสตกรณุกูล](https://mutually-learning-duckling.ngrok-free.app/fda_scan/profile) โดยมี 
+[ดร.ธนพร ปฏิกรณ์](https://github.com/tpatikorn) เป็นอาจารย์ที่ปรึกษา
 
 # TERM OF USE
 Project นี้มีการแผยแพร่แบบสาธารณะเพื่อการศึกษาเท่านั้น หากท่านต้องการนำ project นี้ไปใช้ประโยชน์ ทั้งในด้านพาณิชย์และวิจัย กรุณาติดต่อผู้ดูแล project เพื่อขออณุญาต และอ้างอิงอย่างถูกต้อง
