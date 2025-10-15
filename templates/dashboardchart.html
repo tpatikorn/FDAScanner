@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <!-- Chart.js และ Plugin Datalabels -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 10px; background: #f5f5f5; }
+    h2 { text-align: center; color: #c2185b; font-size: 24px; }
+    /* สรุปข้อมูลด้านบน */
+    .summary-container { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .summary-card { background: white; padding: 20px 40px; margin: 10px; flex: 1 1 250px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1); border-radius: 10px; text-align: center; min-width: 200px; }
+    .summary-card h3 { margin: 0; color: #757575; font-size: 18px; font-weight: normal; }
+    .summary-card p { margin: 5px 0 0 0; font-size: 28px; color: #c2185b; font-weight: bold; }
+    /* Layout กราฟ */
+    .container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; }
+    .chart-container { flex: 1 1 400px; background: white; padding: 20px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1); border-radius: 10px; text-align: center;
+      min-width: 300px; min-height: 500px; display: flex; flex-direction: column; }
+    .chart-container h3 { color:#c2185b; }
+    .chart-canvas-container { position: relative; flex-grow: 1; }
+    /* ปุ่มสลับมุมมอง */
+    .view-buttons { text-align:center; margin-bottom:15px; }
+    .view-buttons button { margin: 5px; padding: 8px 16px; background-color: #c2185b; border: none;
+      color: white; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; }
+    .view-buttons button:hover { background-color: #9c1346; }
+    /* ตาราง */
+    .table-container { width: 100%; margin: 20px auto; background: white; padding: 20px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1); border-radius: 10px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 16px; min-width: 500px; }
+    table, th, td { border: 1px solid #ddd; }
+    th { background-color: #c2185b; color: white; padding: 10px; }
+    td { padding: 8px; text-align: center; }
+    .loading-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 18px; color: #757575; }
+    
+     /* === Navigation Button === */
+         :root {
+            --primary-blue: #1e88e5;
+            --dark-blue: #0d47a1;
+            --light-blue-bg: #e3f2fd;
+            --text-color: #333;
+            --light-text: #5f6368;
+            --bg-color: #f4f7f9;
+            --white: #ffffff;
+            --border-color: #e0e0e0;
+        }
+
+        .home-button-wrapper {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 14px 35px;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 50px;
+            transition: background-color 0.3s, transform 0.2s;
+        } 
+    
+  </style>
+</head>
+<body>
+  <h2>สถิติประวัติการรายงาน</h2>
+
+  <!-- การ์ดสรุป -->
+  <div class="summary-container">
+    <div class="summary-card">
+      <h3>จำนวนข้อมูลที่รายงานทั้งหมด</h3>
+      <p>{{ dashboard_data.kpi.total_complaints|default(0)|int }}</p>
+    </div>
+  </div>
+
+  <!-- กราฟ -->
+  <div class="container">
+    <!-- Pie Chart -->
+    <div class="chart-container">
+      <h3>อัตราส่วนการรายงานแต่ละหมวดหมู่</h3>
+      <div class="chart-canvas-container">
+        <canvas id="pieChart"></canvas>
+        <p class="loading-text" id="pieChartPlaceholder">กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+
+    <!-- Area Chart -->
+    <div class="chart-container">
+      <h3>แนวโน้มอัตราส่วนหมวดหมู่</h3>
+      <div class="view-buttons">
+        <button onclick="switchView('month')">รายเดือน</button>
+        <button onclick="switchView('year')">รายปี</button>
+      </div>
+      <div class="chart-canvas-container">
+        <canvas id="areaChart"></canvas>
+        <p class="loading-text" id="areaChartPlaceholder">กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ตารางอันดับจังหวัด -->
+<div class="table-container">
+  <h3 style="text-align:center; color:#c2185b;">อันดับจังหวัดที่มีการรายงานสูงสุด</h3>
+  <table>
+    <thead>
+      <tr><th>อันดับ</th><th>จังหวัด</th><th>จำนวนรายงาน</th></tr>
+    </thead>
+    <tbody>
+      {% if dashboard_data and dashboard_data.kpi and dashboard_data.kpi.top_provinces %}
+        {% for province in dashboard_data.kpi.top_provinces %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <!-- แก้ไขบรรทัดนี้ -->
+          <td>{{ province.province_name|default('N/A') }}</td>
+          <!-- /สิ้นสุดการแก้ไข -->
+          <td>{{ province.count|default(0) }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="3">ไม่มีข้อมูล</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+  <!-- Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const dashboardData = {{ dashboard_data|tojson }};
+
+      if (!dashboardData || Object.keys(dashboardData).length === 0 || dashboardData.error_message) {
+        document.getElementById('pieChartPlaceholder').textContent = 'ไม่สามารถโหลดข้อมูลได้';
+        document.getElementById('areaChartPlaceholder').textContent = 'ไม่สามารถโหลดข้อมูลได้';
+        return;
+      }
+
+      // ==== PIE CHART ====
+      const piePlaceholder = document.getElementById('pieChartPlaceholder');
+      if (dashboardData.top_categories_chart?.labels?.length > 0) {
+        piePlaceholder.style.display = 'none';
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+          type: 'doughnut',
+          data: {
+            labels: dashboardData.top_categories_chart.labels,
+            datasets: dashboardData.top_categories_chart.datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              datalabels: {
+                color: '#fff',
+                formatter: (value, ctx) => {
+                  const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  return total ? (value * 100 / total).toFixed(1) + "%" : '';
+                }
+              }
+            }
+          },
+          // ## จุดที่ 1: โครงสร้าง Plugins ที่ถูกต้อง ##
+          // การลงทะเบียน Plugin (เช่น ChartDataLabels) จะต้องอยู่นอกสุดของ Object การตั้งค่า
+          // เพื่อไม่ให้ซ้ำซ้อนกับ options.plugins ที่ใช้สำหรับ 'ตั้งค่า' การทำงานของ Plugin
+          plugins: [ChartDataLabels]
+        });
+      } else {
+        piePlaceholder.textContent = 'ไม่มีข้อมูลสำหรับกราฟนี้';
+      }
+
+      // ==== STACKED AREA CHART ====
+      let areaChartInstance;
+      const areaPlaceholder = document.getElementById('areaChartPlaceholder');
+
+      // ## จุดที่ 2: แก้ไขฟังก์ชัน buildStackedDatasets (จุดที่สำคัญที่สุด) ##
+      // ฟังก์ชัน Chart.helpers.color ถูกลบออกไปแล้วใน Chart.js เวอร์ชัน 3+
+      // เราจึงต้องเขียนฟังก์ชันขึ้นมาใหม่เพื่อแปลงสีเส้นขอบ (borderColor) ให้เป็นสีพื้นหลังโปร่งแสง (backgroundColor) เอง
+      function buildStackedDatasets(originalDatasets) {
+        if (!originalDatasets || originalDatasets.length === 0) return [];
+
+        return originalDatasets.map(dataset => {
+          // 1. ดึงค่าสีเส้นขอบ หรือใช้สีเทาเป็นค่าเริ่มต้นถ้าไม่มี
+          const borderColor = dataset.borderColor || '#999999';
+
+          // 2. สร้างสีโปร่งแสง (ประมาณ 60%) โดยการเติม Alpha Hex ('99') ต่อท้ายรหัสสี
+          //   - ตรวจสอบก่อนว่าเป็นรหัสสี hex 6 หลักหรือไม่ (เช่น #FFFFFF มีความยาว 7)
+          //   - ถ้าใช่: จะได้ผลลัพธ์เป็น #FFFFFF99
+          //   - ถ้าไม่ใช่: ให้ใช้ค่าสี rgba แบบโปร่งแสงเป็นค่าสำรอง
+          const backgroundColor = borderColor.length === 7 ? `${borderColor}99` : 'rgba(153, 153, 153, 0.6)';
+
+          // 3. คืนค่า object ของ dataset เดิม พร้อมกับ backgroundColor ที่เราสร้างขึ้นใหม่
+          return {
+            ...dataset,
+            fill: true,
+            tension: 0.4,
+            backgroundColor: backgroundColor, // ใช้ค่าสีใหม่ที่คำนวณได้
+            pointRadius: 3,
+            pointBackgroundColor: dataset.borderColor,
+            pointBorderColor: '#fff'
+          };
+        });
+      }
+
+      // ฟังก์ชันสำหรับวาด Area Chart (ใช้โค้ดเดิมได้)
+      function renderAreaChart(labels, datasets) {
+        const ctx = document.getElementById('areaChart').getContext('2d');
+        if (areaChartInstance) areaChartInstance.destroy();
+        areaChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: { labels, datasets: buildStackedDatasets(datasets) }, // เรียกใช้ฟังก์ชัน buildStackedDatasets ที่แก้ไขแล้ว
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+              x: { stacked: true },
+              y: { stacked: true, beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      // แสดงผลกราฟครั้งแรก (ใช้โค้ดเดิมได้)
+      if (dashboardData.monthly_trends?.labels?.length > 0) {
+        areaPlaceholder.style.display = 'none';
+        renderAreaChart(dashboardData.monthly_trends.labels, dashboardData.monthly_trends.datasets);
+      } else {
+        areaPlaceholder.textContent = 'ไม่มีข้อมูลสำหรับกราฟนี้';
+      }
+
+      // ฟังก์ชันสลับมุมมอง (ใช้โค้ดเดิมได้)
+      window.switchView = function(view) {
+        // เพิ่มการตรวจสอบว่ามีข้อมูล trends นั้นๆ อยู่จริงหรือไม่ เพื่อป้องกัน error
+        if (view === 'month' && dashboardData.monthly_trends) {
+          renderAreaChart(dashboardData.monthly_trends.labels, dashboardData.monthly_trends.datasets);
+        } else if (view === 'year' && dashboardData.yearly_trends) {
+          renderAreaChart(dashboardData.yearly_trends.labels, dashboardData.yearly_trends.datasets);
+        }
+      };
+    });
+  </script>
+  <div class="home-button-wrapper">
+    <a href="{{ url_for('fda_scan.scan_home') }}" class="home-button">กลับสู่หน้าสแกน</a>
+  </div>
+</body>
+</html>

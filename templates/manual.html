@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือการใช้งาน - ระบบตรวจสอบและร้องเรียนผลิตภัณฑ์</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* === Base Styles === */
+        :root {
+            --primary-blue: #1e88e5;
+            --dark-blue: #0d47a1;
+            --light-blue-bg: #e3f2fd;
+            --text-color: #333;
+            --light-text: #5f6368;
+            --bg-color: #f4f7f9;
+            --white: #ffffff;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            line-height: 1.8;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* === Main Container === */
+        .manual-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--white);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        /* === Header and Typography === */
+        h1 {
+            text-align: center;
+            color: var(--dark-blue);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .intro {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--light-text);
+            margin-bottom: 45px;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--light-blue-bg);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 .section-number {
+            font-weight: 700;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* === Lists and Highlights === */
+        ul, ol {
+            padding-left: 30px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+        
+        strong, b {
+            font-weight: 500;
+            color: var(--dark-blue);
+        }
+
+        .highlight {
+            background-color: #fffbe6;
+            color: #c47d00;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        /* === Image Styles (Added) === */
+        .manual-image-wrapper {
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .manual-image {
+            max-width: 40%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        /* === Navigation Button === */
+        .home-button-wrapper {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 14px 35px;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 50px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .home-button:hover {
+            background-color: var(--dark-blue);
+            transform: translateY(-2px);
+        }
+
+        /* === Responsive Design === */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .manual-container {
+                padding: 25px 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            .manual-image {
+                max-width: 100%; /* Make images full-width on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="manual-container">
+        <h1>คู่มือการใช้งาน</h1>
+        <p class="intro">เว็บแอปพลิเคชัน "ตรวจสอบและร้องเรียนผลิตภัณฑ์"</p>
+        
+        <!-- ส่วนที่ 1: หน้าแรก -->
+        <section>
+            <h2><span class="section-number">1</span>หน้าแรก - จุดเริ่มต้นการใช้งาน</h2>
+            <p>เมื่อเข้าสู่เว็บไซต์ หน้าแรกจะเป็นศูนย์กลางในการเข้าถึงฟังก์ชันต่างๆ ซึ่งมี 2 ตัวเลือกหลัก:</p>
+            <ul>
+                <li><b>แตะเพื่อเปิดกล้อง (ไอคอนรูปกล้อง):</b> กดเพื่อไปยังหน้าสแกน ใช้สำหรับตรวจสอบเลข อย. 13 หลักบนผลิตภัณฑ์ทันที</li>
+                <li><b>แจ้งเรื่องร้องเรียนผลิตภัณฑ์ (ปุ่มด้านล่าง):</b> กดเพื่อไปยังหน้าฟอร์มร้องเรียนโดยตรง เหมาะสำหรับกรณีที่ทราบเลขผลิตภัณฑ์อยู่แล้ว หรือไม่ต้องการสแกน</li>
+            </ul>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='1.jpg') }}" alt="หน้าแรกของแอปพลิเคชัน" class="manual-image">
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 2: หน้าสแกน -->
+        <section>
+            <h2><span class="section-number">2</span>หน้าสแกน - ตรวจสอบเลขผลิตภัณฑ์ด้วยกล้อง</h2>
+            <p>หน้านี้คือเครื่องมือหลักสำหรับตรวจสอบผลิตภัณฑ์แบบอัตโนมัติ มีขั้นตอนดังนี้:</p>
+            <ol>
+                <li><b>อนุญาตเข้าถึงกล้อง:</b> เบราว์เซอร์จะขออนุญาตใช้กล้อง กรุณากด "อนุญาต" (Allow)</li>
+                <li><b>จัดวางตำแหน่ง:</b> นำกรอบสี่เหลี่ยมบนหน้าจอไปวางคร่อมบริเวณ <span class="highlight">เลขสารบบ อย. 13 หลัก</span> บนผลิตภัณฑ์</li>
+                <li><b>กดสแกน:</b> กดปุ่ม <span class="highlight">"แตะเพื่อสแกน"</span> เพื่อให้ระบบประมวลผล</li>
+                <li><b>ดูผลลัพธ์:</b> หากสำเร็จ ระบบจะนำท่านไปยังหน้า "ผลการตรวจสอบ" อัตโนมัติ หากไม่พบตัวเลข จะมีข้อความแจ้งเตือนให้ลองอีกครั้ง</li>
+            </ol>
+            <p><strong>เคล็ดลับ:</strong> ควรใช้งานในที่ที่มีแสงสว่างเพียงพอ และพยายามถือโทรศัพท์ให้นิ่งเพื่อให้ภาพคมชัด</p>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='2.jpg') }}" alt="หน้าสแกนผลิตภัณฑ์" class="manual-image">
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 3: หน้าผลการตรวจสอบ -->
+        <section>
+            <h2><span class="section-number">3</span>หน้าผลการตรวจสอบ - ข้อมูลผลิตภัณฑ์</h2>
+            <p>หลังจากสแกนสำเร็จ หน้านี้จะแสดงข้อมูลผลิตภัณฑ์ที่ดึงมาจากฐานข้อมูลของ อย. โดยตรง</p>
+            <ul>
+                <li><b>ข้อมูลที่แสดง:</b> ชื่อผลิตภัณฑ์, สถานะ, ชื่อผู้รับอนุญาต และข้อมูลอื่นๆ</li>
+                <li><b>การอ่านออกเสียง:</b> กดปุ่ม <span class="highlight">"▶️ ออกเสียง"</span> เพื่อฟังข้อมูลสรุปของผลิตภัณฑ์</li>
+                <li><b>การดำเนินการต่อ:</b>
+                    <ul>
+                        <li>กดปุ่ม <span class="highlight">"แจ้งเรื่องร้องเรียนผลิตภัณฑ์"</span> เพื่อไปยังหน้าฟอร์ม โดยระบบจะกรอกข้อมูลผลิตภัณฑ์ให้ท่านอัตโนมัติ</li>
+                        <li>กดปุ่ม <span class="highlight">"⬅️" (ย้อนกลับ)</span> เพื่อกลับไปหน้าแรก</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='3.jpg') }}" alt="หน้าแสดงผลการตรวจสอบ" class="manual-image">
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 4: หน้าฟอร์ม -->
+        <section>
+            <h2><span class="section-number">4</span>หน้าฟอร์ม - การแจ้งเรื่องร้องเรียนผลิตภัณฑ์</h2>
+            <p>หน้านี้ใช้สำหรับกรอกข้อมูลเพื่อส่งเรื่องร้องเรียนอย่างเป็นทางการ</p>
+            <ul>
+                <li><b>ข้อมูลผู้ร้องเรียน:</b> กรอกชื่อ, เบอร์โทร, และอีเมลของท่าน</li>
+                <li><b>ข้อมูลผลิตภัณฑ์และสถานที่:</b> ระบุเลขผลิตภัณฑ์ (หากมี), หมวดหมู่, และสถานที่ที่พบผลิตภัณฑ์ (เลือกจากภูมิภาค, จังหวัด, อำเภอ, ตำบล)</li>
+                <li><b>รายละเอียด:</b> อธิบายปัญหาที่พบและแหล่งที่มาของผลิตภัณฑ์</li>
+                <li><b>อัปโหลดรูปภาพ:</b>
+                    <ul>
+                        <li>สามารถแนบรูปได้สูงสุด 4 รูป</li>
+                        <li>หากท่านมาจากการสแกน <span class="highlight">รูปที่สแกนจะถูกแนบให้โดยอัตโนมัติ</span></li>
+                        <li>กด <span class="highlight">"+"</span> เพื่อเพิ่มรูป และกด <span class="highlight">"×"</span> เพื่อลบ</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>เมื่อกรอกครบถ้วนแล้ว กดปุ่ม <span class="highlight">"ส่งคำร้องเรียนผลิตภัณฑ์"</span> เพื่อดำเนินการ</p>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='4.1.jpg') }}" alt="หน้าฟอร์มร้องเรียน" class="manual-image">
+                <img src="{{ url_for('fda_scan.static', filename='4.2.jpg') }}" alt="หน้าฟอร์มร้องเรียน" class="manual-image">
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 5: หน้ายืนยัน -->
+        <section>
+            <h2><span class="section-number">5</span>หน้ายืนยัน - ส่งคำร้องสำเร็จ</h2>
+            <p>หลังจากส่งคำร้องเรียนเรียบร้อยแล้ว ระบบจะแสดงหน้ายืนยัน ซึ่งเปรียบเสมือน "ใบแจ้งเรื่อง" ดิจิทัล</p>
+            <ul>
+                <li><b>สรุปข้อมูล:</b> แสดงข้อมูลทั้งหมดที่ท่านกรอกเพื่อเป็นการยืนยัน</li>
+                <li><b>ดูรูปภาพขนาดใหญ่:</b> สามารถคลิกที่รูปภาพเพื่อดูภาพขยาย</li>
+                <li><b>ดาวน์โหลด PDF:</b> ที่มุมขวาล่าง จะมี <span class="highlight">ไอคอนรูป PDF</span> ปรากฏขึ้นมา คลิกเพื่อดาวน์โหลดสำเนาใบแจ้งเรื่องเก็บไว้เป็นหลักฐาน</li>
+            </ul>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='5.1.jpg') }}" alt="หน้ายืนยันการส่งคำร้อง" class="manual-image">
+                <img src="{{ url_for('fda_scan.static', filename='5.2.jpg') }}" alt="หน้ายืนยันการส่งคำร้อง" class="manual-image">
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 6: หน้าแดชบอร์ด -->
+        <section>
+            <h2><span class="section-number">6</span>หน้าแดชบอร์ด - สถิติภาพรวม (สำหรับผู้ดูแล)</h2>
+            <p>หน้านี้แสดงข้อมูลเชิงสถิติของเรื่องร้องเรียนทั้งหมดในระบบ</p>
+            <ul>
+                <li><b>การ์ดสรุปข้อมูล:</b> แสดงจำนวนการร้องเรียนทั้งหมด</li>
+                <li><b>กราฟวงกลม:</b> แสดงสัดส่วนการร้องเรียนในแต่ละหมวดหมู่ผลิตภัณฑ์</li>
+                <li><b>กราฟแนวโน้ม:</b> แสดงจำนวนการร้องเรียนรายเดือน/รายปี</li>
+                <li><b>ตารางอันดับ:</b> แสดง 10 จังหวัดที่มีการรายงานสูงสุด</li>
+            </ul>
+            <div class="manual-image-wrapper">
+                <img src="{{ url_for('fda_scan.static', filename='6.1.jpg') }}" alt="หน้าแดชบอร์ดสถิติ" class="manual-image">
+                <img src="{{ url_for('fda_scan.static', filename='6.2.jpg') }}" alt="หน้าแดชบอร์ดสถิติ" class="manual-image">
+                <img src="{{ url_for('fda_scan.static', filename='6.3.jpg') }}" alt="หน้าแดชบอร์ดสถิติ" class="manual-image">
+            </div>
+        </section>
+        
+        <div class="home-button-wrapper">
+             <a href="/fda_scan/" class="home-button">กลับสู่หน้าแรก</a>
+        </div>
+    </div>
+
+</body>
+</html>

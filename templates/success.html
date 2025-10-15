@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ใบแจ้งเรื่องร้องเรียนผลิตภัณฑ์</title>
+    <style>
+        /* ฟอนต์: ใช้ Arial เป็นหลักเพื่อความเข้ากันได้กับ wkhtmltopdf */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px; /* ขนาดตัวอักษรเริ่มต้น */
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* สีพื้นหลังเพื่อให้เห็นขอบกระดาษจำลองของ container */
+            min-height: 100vh; /* สำหรับหน้าเว็บ: ให้ body สูงอย่างน้อยเท่าหน้าจอ */
+        }
+
+        /* ===== ส่วนของ CSS สำหรับ PDF โดยเฉพาะ (Print Styles) ===== */
+        @media print {
+            body {
+                width: 210mm;  /* ความกว้าง A4 */
+                height: 297mm; /* ความสูง A4 */
+                margin: 0; /* ไม่มี margin ที่ body */
+                padding: 15mm; /* ลด padding เหลือ 15mm เพื่อให้เนื้อที่มากขึ้น */
+                box-sizing: border-box; /* ให้ padding นับรวมใน width/height */
+                font-size: 18px; /* เพิ่มขนาดตัวอักษรใน PDF โดยเฉพาะ (อาจจะทำงานดีกว่า zoom) */
+            }
+            /* ปรับขนาดฟอนต์ของหัวข้อใน PDF */
+            h1 { font-size: 28px !important; }
+            h2 { font-size: 22px !important; }
+            .datetime-info { font-size: 18px !important; }
+            .info-table td { font-size: 18px !important; }
+            .info-table td:first-child { width: 150px !important; } /* อาจจะต้องปรับความกว้างนี้ให้พอดีกับฟอนต์ใหม่ */
+
+            /* ปรับแต่งรูปภาพสำหรับ PDF โดยเฉพาะ */
+            .image-grid {
+                /* กำหนดให้แต่ละรูปภาพแสดงผลในคอลัมน์เดียวและขยายเต็มความกว้างของเนื้อหา */
+                grid-template-columns: 1fr;
+                gap: 25px; /* เพิ่มระยะห่างระหว่างรูปภาพให้มากขึ้นเล็กน้อยเพื่อความชัดเจน */
+                margin-top: 20px; /* เพิ่มระยะห่างด้านบนของส่วนรูปภาพใน PDF */
+            }
+            .image-grid img {
+                max-width: 100%; /* รูปภาพจะขยายเต็มความกว้างของคอลัมน์ */
+                height: auto;    /* รักษาสัดส่วนของรูปภาพ */
+                
+                /* สำคัญมาก: ยกเลิกการจำกัดความสูงที่ตั้งไว้บนเว็บ */
+                max-height: unset; /* ทำให้รูปภาพสามารถขยายความสูงได้เต็มที่ตามสัดส่วน */
+                /* หาก 'unset' ยังไม่ทำงานในบางโปรแกรมสร้าง PDF อาจลองใช้ค่า pixel ที่ใหญ่มากๆ เช่น max-height: 800px; */
+                
+                object-fit: contain; /* รักษารูปภาพให้อยู่ในกรอบโดยรักษาสัดส่วน */
+                display: block;      /* ทำให้รูปภาพเป็น block element */
+                margin: 0 auto;      /* จัดกึ่งกลางรูปภาพ */
+                
+                /* รักษาสไตล์อื่นๆ */
+                border: 1px solid #eee;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            /* ซ่อนข้อความ "ไม่มีรูปภาพ" ใน PDF */
+            .no-images-message {
+                display: none;
+            }
+        }
+        /* ===== สิ้นสุดส่วนของ CSS สำหรับ PDF โดยเฉพาะ ===== */
+
+
+        /* ส่วนหัวที่แสดงเฉพาะบนเว็บ ไม่แสดงใน PDF */
+        .web-success-header {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            background-color: #e2ffe2;
+            border-bottom: 2px solid #28a745;
+            border-top: 2px solid #28a745;
+        }
+        @media print { /* ซ่อน header นี้เมื่อพิมพ์ (สำหรับ PDF) */
+            .web-success-header {
+                display: none;
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 794px; /* ประมาณความกว้าง A4 ที่ 96 DPI (210mm) สำหรับหน้าเว็บ */
+            margin: 20px auto; /* จัดให้อยู่กึ่งกลางและมีระยะห่างจากขอบจอ */
+            border: 1px solid #ddd;
+            padding: 25px 35px; /* ระยะห่างภายใน container */
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            background-color: #fff; /* สีพื้นหลังของเนื้อหา (เหมือนกระดาษ) */
+            min-height: calc(100vh - 40px); /* ทำให้ container สูงพอดีกับหน้าจอเว็บ (สำหรับเนื้อหาน้อย) */
+            box-sizing: border-box;
+        }
+        /* สำหรับ PDF โดยเฉพาะ: ทำให้ container กินพื้นที่เต็ม A4 หลังจากหัก body padding */
+        @media print {
+            .container {
+                width: 100%; /* ทำให้เต็มความกว้างของ body ที่มี padding แล้ว */
+                max-width: none; /* ไม่มี max-width เมื่อพิมพ์ */
+                min-height: calc(297mm - 30mm); /* 297mm (A4 height) - (15mm body padding * 2) */
+                margin: 0; /* ไม่มี margin เมื่อพิมพ์ */
+                box-shadow: none; /* ไม่มีเงาเมื่อพิมพ์ */
+                border: none; /* ไม่มีขอบเมื่อพิมพ์ */
+                padding: 0; /* ไม่มี padding ที่ container เมื่อพิมพ์ เพราะ body มี padding แล้ว */
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0056b3;
+        }
+        h2 {
+            font-size: 20px; /* เพิ่มขนาด h2 */
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .datetime-info { /* สำหรับ "บันทึก ณ วันที่" */
+            text-align: right;
+            font-size: 18px; /* ขนาดใหญ่ขึ้น */
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 20px; /* เพิ่มระยะห่างด้านล่าง */
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table td {
+            padding: 10px 0; /* เพิ่ม padding ใน cell */
+            vertical-align: top;
+            font-size: 16px; /* ขนาดตัวอักษรในตาราง */
+        }
+        /* เพิ่มสไตล์สำหรับ p ภายใน td ของสถานที่พบ เพื่อลดระยะห่างระหว่างบรรทัด */
+        .info-table td p {
+            margin: 0; /* ลบ margin เริ่มต้นของ p */
+            padding: 0; /* ลบ padding เริ่มต้นของ p */
+            line-height: 1.4; /* ปรับ line-height ให้กระชับขึ้น */
+        }
+
+        .info-table td:first-child {
+            width: 180px; /* เพิ่มความกว้างสำหรับป้ายกำกับ */
+            font-weight: bold;
+            color: #555;
+            padding-right: 15px;
+        }
+        .image-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .image-grid {
+            display: grid;
+            /* ปรับขนาดคอลัมน์เริ่มต้นสำหรับรูปภาพบนเว็บ */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* เดิม 120px */
+            gap: 15px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .image-grid img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+            /* ปรับ max-height สำหรับรูปภาพบนเว็บ */
+            max-height: 250px; /* เดิม 120px */
+            cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ที่รูปภาพ บ่งบอกว่าคลิกได้ */
+        }
+        .download-button-container {
+            position: fixed; /* จัดตำแหน่งคงที่บนหน้าจอ */
+            bottom: 30px; /* ห่างจากขอบล่าง 30px */
+            right: 30px; /* ห่างจากขอบขวา 30px */
+            z-index: 1000; /* ให้อยู่ข้างหน้าสุด */
+            width: 100px; /* ทำให้ icon ใหญ่ขึ้นไปอีก */
+            height: 100px; /* ทำให้ icon ใหญ่ขึ้นไปอีก */
+
+        
+            
+        }
+        /* ซ่อนปุ่มดาวน์โหลดเมื่อพิมพ์ (สำหรับ PDF) */
+        @media print {
+            .download-button-container {
+                display: none;
+            }
+
+            .home-button-wrapper {
+                display: none;
+            }
+            
+        }
+        .download-button {
+            display: block; /* ทำให้เป็น block-level link */
+            width: 100%; /* ให้ปุ่มเต็มขนาด container */
+            height: 100%; /* ให้ปุ่มเต็มขนาด container */
+            background: url("{{ url_for('fda_scan.static', filename='pdf.png') }}") no-repeat center center;
+            background-size: contain; /* ปรับขนาดรูปให้พอดี */
+            border: none;
+            cursor: pointer;
+            text-indent: -9999px; /* ซ่อนข้อความ link */
+            transition: transform 0.2s ease-in-out;
+            border-radius: 50%; /* ทำให้ปุ่มกลม */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* เพิ่มเงา */
+        }
+        .download-button:hover {
+            transform: scale(1.1); /* ขยายเมื่อเมาส์ชี้ */
+        }
+
+        /* ===== CSS สำหรับ Overlay และ รูปภาพที่ขยายใหญ่ ===== */
+        .image-overlay {
+            display: none; /* ซ่อนไว้ในตอนแรก */
+            position: fixed; /* ตำแหน่งคงที่ */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* พื้นหลังสีดำโปร่งแสง */
+            z-index: 1001; /* ให้แสดงอยู่เหนือทุกสิ่ง รวมถึงปุ่ม PDF */
+            justify-content: center; /* จัดรูปภาพให้อยู่กึ่งกลางแนวนอน */
+            align-items: center; /* จัดรูปภาพให้อยู่กึ่งกลางแนวตั้ง */
+            cursor: pointer; /* เปลี่ยนเคอร์เซอร์ให้รู้ว่าคลิกได้เพื่อปิด */
+        }
+
+        .image-overlay-content {
+            display: block;
+            max-width: 90%; /* รูปภาพสูงสุด 90% ของความกว้างหน้าจอ */
+            max-height: 90%; /* รูปภาพสูงสุด 90% ของความสูงหน้าจอ */
+            object-fit: contain; /* รักษาสัดส่วนของรูปภาพ */
+        }
+        /* ===== สิ้นสุด CSS สำหรับ Overlay และ รูปภาพที่ขยายใหญ่ ===== */
+
+        
+
+        /* START: CSS ใหม่สำหรับรูปภาพรายงาน (ยังคงใช้ได้กับ grid) */
+        .report-image-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .report-image-container img {
+            max-width: 80%;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        /* END: CSS ใหม่สำหรับรูปภาพรายงาน */
+
+
+        /* ===== Responsive Adjustments for web page ===== */
+        @media (max-width: 768px) {
+            .web-success-header {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            .container {
+                margin: 10px auto; /* ลด margin บนล่างสำหรับหน้าจอเล็ก */
+                padding: 15px 20px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            .datetime-info {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .info-table td {
+                font-size: 14px;
+            }
+            .info-table td:first-child {
+                width: 140px;
+            }
+            .image-grid {
+                /* ปรับขนาดคอลัมน์สำหรับหน้าจอแท็บเล็ต */
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* เดิม 100px */
+            }
+            .image-grid img {
+                /* ปรับ max-height สำหรับหน้าจอแท็บเล็ต */
+                max-height: 200px; /* เดิม 100px */
+            }
+            .download-button-container {
+                bottom: 20px;
+                right: 20px;
+                width: 80px; /* เพิ่มขนาดสำหรับหน้าจอ tablet */
+                height: 80px; /* เพิ่มขนาดสำหรับหน้าจอ tablet */
+            }
+            .download-button {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .web-success-header {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .container {
+                margin: 5px auto;
+                padding: 10px 15px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+            h2 {
+                font-size: 16px;
+            }
+            .datetime-info {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .info-table td {
+                font-size: 12px;
+            }
+            .info-table td:first-child {
+                width: 120px;
+            }
+            .image-grid {
+                /* ปรับขนาดคอลัมน์สำหรับหน้าจอมือถือ */
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* เดิม 80px */
+            }
+            .image-grid img {
+                /* ปรับ max-height สำหรับหน้าจอมือถือ */
+                max-height: 150px; /* เดิม 80px */
+            }
+            /* === Navigation Button === */
+            :root {
+                --primary-blue: #1e88e5;
+                --dark-blue: #0d47a1;
+                --light-blue-bg: #e3f2fd;
+                --text-color: #333;
+                --light-text: #5f6368;
+                --bg-color: #f4f7f9;
+                --white: #ffffff;
+                --border-color: #e0e0e0;
+            }
+
+            .home-button-wrapper {
+                text-align: center;
+                margin-top: 50px;
+                padding-top: 30px;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .home-button {
+                display: inline-block;
+                padding: 14px 35px;
+                background-color: var(--primary-blue);
+                color: var(--white);
+                text-decoration: none;
+                font-size: 1.1rem;
+                font-weight: 500;
+                border-radius: 50px;
+                transition: background-color 0.3s, transform 0.2s;
+            } 
+        }
+        /* ===== สิ้นสุด Responsive Adjustments ===== */
+    </style>
+</head>
+<body>
+    {# ส่วนหัวที่แสดงเฉพาะบนเว็บเบราว์เซอร์ #}
+    <div class="web-success-header">
+        คำร้องของคุณได้ส่งสำเร็จแล้ว!
+    </div>
+
+    {# ส่วนเนื้อหา A4 #}
+    <div class="container">
+        <h1>ใบแจ้งเรื่องร้องเรียนผลิตภัณฑ์</h1>
+        
+        <div class="datetime-info">
+            <p>บันทึก ณ วันที่: {{ current_datetime.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+            <p>เอกสารนี้จัดทำขึ้นเพื่อเป็นหลักฐานการแจ้งเรื่องร้องเรียน</p>
+        </div>
+
+        <h2>ข้อมูลผู้ร้องเรียน</h2>
+        <table class="info-table">
+            <tr>
+                <td>ชื่อจริง-นามสกุล:</td>
+                <td>{{ data.com_name }} {{ data.com_surname }}</td>
+            </tr>
+            <tr>
+                <td>เบอร์โทรศัพท์:</td>
+                <td>{{ data.com_tel }}</td>
+            </tr>
+            <tr>
+                <td>อีเมล:</td>
+                <td>{{ data.com_email }}</td>
+            </tr>
+        </table>
+
+        <h2>ข้อมูลผลิตภัณฑ์และสถานที่</h2>
+        <table class="info-table">
+            <tr>
+                <td>เลขผลิตภัณฑ์:</td>
+                <td>{{ data.com_code if data.com_code else 'ไม่ได้ระบุ' }}</td>
+            </tr>
+            <tr>
+                <td>หมวดหมู่ผลิตภัณฑ์:</td>
+                <td>{{ data.com_category }}</td>
+            </tr>
+            <tr>
+                <td>สถานที่พบ:</td>
+                <td>
+                    <p>ภูมิภาค: {{ data.com_geographies if data.com_geographies else 'ไม่ได้ระบุ' }}</p>
+                    <p>จังหวัด: {{ data.province if data.province else 'ไม่ได้ระบุ' }}</p>
+                    <p>อำเภอ: {{ data.district if data.district else 'ไม่ได้ระบุ' }}</p>
+                    <p>ตำบล: {{ data.subdistrict if data.subdistrict else 'ไม่ได้ระบุ' }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>แหล่งที่มา:</td>
+                <td>{{ data.source }}</td>
+            </tr>
+            <tr>
+                <td>เพราะเหตุใดถึงรายงาน:</td>
+                <td>{{ data.com_reported if data.com_reported else 'ไม่ได้ระบุ' }}</td>
+            </tr>
+            <tr>
+                <td>ข้อมูลจากแหล่งตรวจสอบ อย.:</td>
+                <td>{{ data.com_fda_data if data.com_fda_data else 'ไม่ได้ระบุ' }}</td>
+            </tr>
+        </table>
+
+        <div class="image-section">
+            <h2>รูปภาพจากการถ่ายภาพผลิตภัณฑ์จริง</h2>
+            <div class="image-grid">
+                {# แก้ไขสำหรับ PDF: ตรวจสอบว่ามีข้อมูลภาพหรือไม่ แล้วแสดงเฉพาะภาพแรก #}
+                {% if data.image_base64_data and data.image_base64_data[0] %}
+                    <img src="{{ data.image_base64_data[0] }}" alt="รูปภาพประกอบ">
+
+                {# แก้ไขสำหรับหน้าเว็บ: ตรวจสอบว่ามีไฟล์ภาพหรือไม่ แล้วแสดงเฉพาะภาพแรก #}
+                {% elif data.images and data.images[0] %}
+                    <img src="{{ url_for('fda_scan.static', filename='uploads/' + data.images[0]) }}" alt="รูปภาพประกอบ">
+                
+                {# ไม่ต้องทำอะไรถ้าไม่มีรูปภาพเลย #}
+                {% endif %}
+            </div>
+        </div>
+        
+
+        <!-- START: ส่วนแสดงผลที่แก้ไขใหม่ -->
+        {# ตรวจสอบว่ามีรูปภาพรายงานอย่างน้อยหนึ่งรูปหรือไม่ #}
+        {% if (data.report_images_base64_data and data.report_images_base64_data|length > 0) or (data.report_images and (data.report_images | reject('none') | list | length > 0)) %}
+        <div class="image-section">
+            <h2>รูปภาพผลิตภัณฑ์ที่อัปโหลดเพิ่มเติม</h2>
+            <div class="image-grid">
+                {# สำหรับ PDF: วนลูปแสดงรูปจาก Base64 #}
+                {% if data.report_images_base64_data %}
+                    {% for image_data in data.report_images_base64_data %}
+                        <img src="{{ image_data }}" alt="รูปภาพที่ต้องการรายงาน">
+                    {% endfor %}
+                
+                {# สำหรับ Web: วนลูปแสดงรูปจากชื่อไฟล์ #}
+                {% elif data.report_images %}
+                    {% for image_filename in data.report_images %}
+                        {% if image_filename %}
+                             <img src="{{ url_for('fda_scan.static', filename='aaa/' + image_filename) }}" alt="รูปภาพที่ต้องการรายงาน">
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        <!-- END: ส่วนแสดงผลที่แก้ไขใหม่ -->
+    </div>
+
+    {# ปุ่มเซฟ PDF ที่มุมล่างขวา (แสดงเฉพาะบนเว็บ) #}
+    <div class="download-button-container">
+        <a href="{{ pdf_url }}" class="download-button" download="Product_Complaint_Report.pdf" title="ดาวน์โหลด PDF">ดาวน์โหลด PDF</a>
+    </div>
+
+    <div class="home-button-wrapper">
+        <a href="{{ url_for('fda_scan.scan_home') }}" class="home-button">กลับสู่หน้าสแกน</a>
+    </div>
+
+    {# ===== ส่วนของ JavaScript เพื่อจัดการการซูมรูปภาพเมื่อคลิก ===== #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // เลือก element grid ที่มีรูปภาพ
+            const imageGrids = document.querySelectorAll('.image-grid');
+
+            // สร้าง overlay (พื้นหลังทึบ) สำหรับแสดงรูปภาพขนาดใหญ่
+            const overlay = document.createElement('div');
+            overlay.classList.add('image-overlay'); // เพิ่ม class 'image-overlay' ที่เรากำหนดสไตล์ไว้
+
+            // สร้าง element img สำหรับแสดงรูปภาพขนาดใหญ่ภายใน overlay
+            const overlayImage = document.createElement('img');
+            overlayImage.classList.add('image-overlay-content'); // เพิ่ม class 'image-overlay-content'
+
+            // นำรูปภาพขนาดใหญ่ไปใส่ใน overlay
+            overlay.appendChild(overlayImage);
+
+            // นำ overlay ไปใส่ใน body ของเอกสาร
+            document.body.appendChild(overlay);
+
+            // เพิ่ม Event Listener ให้กับทุก image-grid
+            imageGrids.forEach(grid => {
+                grid.addEventListener('click', function(event) {
+                    const target = event.target; // Element ที่ถูกคลิก
+
+                    // ตรวจสอบว่า Element ที่ถูกคลิกเป็นรูปภาพ (IMG) หรือไม่
+                    if (target.tagName === 'IMG') {
+                        // กำหนด src ของรูปภาพใน overlay ให้เป็น src ของรูปภาพที่ถูกคลิก
+                        overlayImage.src = target.src;
+                        // แสดง overlay โดยตั้งค่า display เป็น 'flex' (เพื่อให้ CSS จัดกึ่งกลางทำงาน)
+                        overlay.style.display = 'flex';
+                    }
+                });
+            });
+
+            // เพิ่ม Event Listener เมื่อมีการคลิกที่ overlay (เพื่อปิดรูปภาพ)
+            overlay.addEventListener('click', function() {
+                // ซ่อน overlay โดยตั้งค่า display เป็น 'none'
+                overlay.style.display = 'none';
+            });
+        });
+    </script>
+    {# ===== สิ้นสุดส่วนของ JavaScript ===== #}
+</body>
+</html>

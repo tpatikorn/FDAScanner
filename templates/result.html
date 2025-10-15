@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ผลการสแกน</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('fda_scan.static', filename='favicon.ico') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        p {
+            font-size: 1rem;
+            color: #343a40;
+            line-height: 1.6;
+        }
+        /* START CHANGE: ปรับแต่งสีของ alert-danger ให้ข้อความเข้มขึ้น */
+        .alert-danger {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #721c24; /* สีข้อความเข้ม */
+            background-color: #f8d7da; /* พื้นหลังสีชมพูอ่อน */
+            border-color: #f5c6cb; /* สีขอบ */
+        }
+        /* END CHANGE */
+        .speak-button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffc107;
+            color: #343a40;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .speak-button:hover {
+            background-color: #e0a800;
+        }
+        .result-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        .complaint-button {
+            text-decoration: none;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #dc3545;
+            color: white;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .complaint-button:hover {
+            background-color: #c82333;
+        }
+        .back-button {
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: #6c757d;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        @media (max-width: 768px) {
+            body {
+                /* 1. ลบระยะขอบซ้าย-ขวาของพื้นหลังทั้งหมด */
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .container {
+                /* 2. ทำให้กล่องข้อมูลขยายเต็ม 100% ของหน้าจอ */
+                width: 100%;
+                max-width: 100%; /* เลิกใช้ค่า 600px */
+                
+                /* 3. ทำให้มุมไม่โค้งมน และไม่มีเงา เพื่อให้ดูเต็มจอเนียนๆ */
+                border-radius: 0;
+                box-shadow: none;
+                
+                /* 4. ปรับระยะห่างของ "ข้อความข้างใน" ให้สวยงาม */
+                padding: 25px 20px; 
+            }
+            .result-actions {
+                flex-direction: column;
+            }
+            .complaint-button {
+                margin-right: 0;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ผลการตรวจสอบเลขสารบบ อย.</h1>
+        <p><strong>เลขสารบบ อย. ที่ตรวจสอบ:</strong> {{ fda_number }}</p>
+
+        {% if product_name_th %}
+            <!-- ** กรณีพบข้อมูล: แสดงรายละเอียดผลิตภัณฑ์ ** -->
+            <hr>
+            <p><strong>อาหาร:</strong> {{ product_group }}</p>
+            <p><strong>ชื่อผลิตภัณฑ์ (TH):</strong> {{ product_name_th }}</p>
+            <p><strong>ชื่อผลิตภัณฑ์ (EN):</strong> {{ product_name_en }}</p>
+            <p><strong>สถานะผลิตภัณฑ์:</strong> {{ product_status }}</p>
+            <p><strong>ชื่อผู้รับอนุญาต:</strong> {{ licensee }}</p>
+            <p><strong>ชื่อสถานที่:</strong> {{ licensee_place }}</p>
+            <p><strong>ที่ตั้ง:</strong> {{ licensee_address }}</p>
+            <p><strong>สถานะใบอนุญาตสถานที่:</strong> {{ license_status }}</p>
+            {% if audio_path %}
+            <div class="audio-controls mb-4">
+                <button id="playStopBtn" class="speak-button">
+                    <span class="icon">▶️</span>
+                    <span class="text">ออกเสียงข้อมูล</span>
+                </button>
+                <audio id="ttsAudio" src="{{ audio_path }}" preload="auto"></audio>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const controlButton = document.getElementById('playStopBtn');
+                    const audio = document.getElementById('ttsAudio');
+                    if (controlButton && audio) {
+                        const buttonIcon = controlButton.querySelector('.icon');
+                        const buttonText = controlButton.querySelector('.text');
+                        let isPlaying = false;
+                        
+                        const updateButtonUI = () => {
+                            if (isPlaying) {
+                                buttonIcon.textContent = '⏹️';
+                                buttonText.textContent = 'หยุดอ่าน';
+                            } else {
+                                buttonIcon.textContent = '▶️';
+                                buttonText.textContent = 'ออกเสียงข้อมูล';
+                            }
+                        };
+                        
+                        controlButton.addEventListener('click', () => {
+                            if (!isPlaying) {
+                                audio.play();
+                                isPlaying = true;
+                            } else {
+                                audio.pause();
+                                audio.currentTime = 0;
+                            isPlaying = false;
+                            }
+                            updateButtonUI();
+                        });
+
+                        audio.addEventListener('ended', () => {
+                            isPlaying = false;
+                            updateButtonUI();
+                        });
+                    }
+                });
+            </script>
+            {% endif %}
+            
+        {% else %}
+            <!-- ** กรณีไม่พบข้อมูล: แสดงข้อความแจ้งเตือน (เปลี่ยนเป็นสีแดง) ** -->
+            <!-- START CHANGE: เปลี่ยนจาก alert-warning เป็น alert-danger -->
+            <div class="alert alert-danger mt-4" role="alert">
+                ไม่พบข้อมูลผลิตภัณฑ์ในระบบ<br>อาจเป็นเลขสารบบที่ไม่ถูกต้อง หรือเป็น *เลข อย. ปลอม*
+            </div>
+            <!-- END CHANGE -->
+        {% endif %}
+        
+
+        <div class="result-actions">
+            <form action="{{ url_for('fda_scan.form') }}" method="POST" id="complaint-form">
+                <input type="hidden" name="com_code" value="{{ fda_number }}">
+                <input type="hidden" name="com_fda_real_data" value="{{ com_fda_real_data }}">
+                
+                <!-- **** บรรทัดที่เพิ่มเข้ามา **** -->
+                <input type="hidden" name="scanned_image" value="{{ scanned_image_filename }}">
+                
+                <button type="submit" class="complaint-button">แจ้งร้องเรียนผลิตภัณฑ์นี้</button>
+            </form>
+            
+            <a href="{{ url_for('fda_scan.scan_home') }}" class="back-button" aria-label="กลับไปหน้าสแกน">⬅️</a>
+        </div>
+    </div>
+</body>
+</html>

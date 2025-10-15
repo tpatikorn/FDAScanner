@@ -1,0 +1,642 @@
+/* ===================================================================
+   FDATHAI - Master Stylesheet
+   เวอร์ชันที่รวมและปรับปรุงจากทุกไฟล์
+   ===================================================================
+   สารบัญ:
+   1.  Base & Reset Styles
+   2.  Layout & Main Container
+   3.  Typography (Headers, Text)
+   4.  General Components (Buttons, Links, Inputs)
+   5.  Page: Complaint Form Styles
+   6.  Page: OCR Scan Styles
+       - Video & Camera Controls
+       - Scan Overlay & Guidance
+       - Status Indicators (Loading, Error)
+   7.  Page: Result & Success Styles
+       - Dynamic Result View
+   8.  Animations
+   9.  Responsive Design
+   =================================================================== */
+
+/* --- 1. Base & Reset Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Kanit", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #f9f9ff);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px 10px;
+    scroll-behavior: smooth;
+}
+
+/* --- 2. Layout & Main Container --- */
+.container {
+    position: relative;
+    background: white;
+    padding: 35px 40px;
+    max-width: 800px; /* ปรับให้กว้างขึ้นเพื่อรองรับหน้าฟอร์ม */
+    width: 100%;
+    margin: auto;
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    animation: fadeIn 0.6s ease-out;
+    transition: box-shadow 0.3s ease;
+}
+
+.container:hover {
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* --- 3. Typography (Headers, Text) --- */
+h1 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    user-select: none;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+    text-align: center;
+    background: linear-gradient(to right, #004aad, #00c6ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+.container p {
+    font-size: 1.1rem;
+    padding: 12px 0;
+    border-bottom: 1px solid #eef2f7;
+    text-align: left;
+    line-height: 1.7;
+}
+
+.container p:last-child {
+    border-bottom: none;
+}
+
+.container p strong {
+    color: #2c3e50;
+    margin-right: 10px;
+    min-width: 150px;
+    display: inline-block;
+}
+
+/* --- 4. General Components (Buttons, Links, Inputs) --- */
+
+/* Input Fields (ใช้ร่วมกันในฟอร์ม) */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: "Kanit", sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #1e90ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.2);
+}
+
+/* Generic Action Link (สำหรับ "กลับหน้าแรก", "ดาวน์โหลด PDF") */
+.action-link {
+    display: inline-block;
+    text-align: center;
+    margin-top: 25px;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #0077ff;
+    border: 2px solid #0077ff;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.action-link:hover {
+    background-color: #0077ff;
+    color: white;
+}
+
+/* --- 5. Page: Complaint Form Styles --- */
+form label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+    text-align: left;
+}
+
+form input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+form button.submit-button {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    margin-top: 30px;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+form button.submit-button:hover {
+    background-color: #006dd6;
+}
+
+/* --- 6. Page: OCR Scan Styles --- */
+
+/* Video & Camera Controls */
+.video-container {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+    margin-bottom: 20px;
+    background: #000;
+}
+
+video#videoElement {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.switch-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    color: #000000;
+    border: none;
+    padding: 10px 14px;
+    font-size: 1.4rem;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.switch-button:hover {
+    background: #007bff;
+    color: white;
+}
+
+.zoom-controls {
+    width: 90%;
+    max-width: 400px;
+    margin: 15px auto 0;
+    background: #ecf5ff;
+    border-radius: 12px;
+    border: 1px solid #d1eaff;
+    padding: 8px 15px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.zoom-controls span {
+    font-size: 1.5rem;
+    color: #0056d2;
+    user-select: none;
+}
+
+input[type="range"]#zoomSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="range"]#zoomSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: #0077ff;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]#zoomSlider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: #0077ff;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Scan Overlay & Guidance */
+.scan-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    height: 35%;
+    border: 3px dashed rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+    border-radius: 14px;
+    pointer-events: none;
+}
+
+.overlay-text {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background-color: rgba(0,0,0,0.7);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Status Indicators (Loading, Error) */
+#status-box {
+    margin-top: 20px;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#loadingIndicator {
+    display: none;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    color: #0056d2;
+    font-size: 1.1rem;
+}
+
+.loader {
+    border: 5px solid #e3f2fd;
+    border-top: 5px solid #0077ff;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+}
+
+#errorMessage {
+    color: #d93025;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* --- 7. Page: Result & Success Styles --- */
+.scan-button, .close-button {
+    background: linear-gradient(135deg, #0077ff, #00c6ff);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    font-size: 1.3rem;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0, 119, 255, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.scan-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 119, 255, 0.6);
+}
+
+.scan-button:disabled {
+    background: #b0bec5;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+.scan-button:disabled:hover {
+    background: #b0bec5;
+    box-shadow: none;
+    transform: none;
+}
+
+.speak-button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.speak-button:hover {
+    background-color: #e0a800;
+}
+
+/* Dynamic Result View */
+#result-view {
+    display: none;
+    background: #f8fbff;
+    border: 1px solid #d1eaff;
+    border-radius: 18px;
+    padding: 25px;
+    text-align: left;
+    margin-top: 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.result-item {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    border-bottom: 1px solid #e6ecf5;
+    padding-bottom: 12px;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item strong {
+    color: #333;
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.result-item span {
+    color: #555;
+    padding-left: 1rem;
+    font-size: 1.1rem;
+}
+
+#resultAudio {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.close-button {
+    background: linear-gradient(135deg, #6c757d, #90a4ae);
+    box-shadow: 0 8px 18px rgba(108, 117, 125, 0.4);
+}
+
+.close-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(108, 117, 125, 0.6);
+}
+
+/* --- 8. Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- 9. Responsive Design --- */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+    .container {
+        padding: 25px 20px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    h2 {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 550px) {
+    body {
+        padding: 15px;
+    }
+    .container {
+        margin: 20px auto;
+        padding: 20px 15px;
+    }
+    h1 {
+        font-size: 1.7rem;
+    }
+    .container p, .result-item span {
+        font-size: 1rem;
+    }
+    .scan-button, .speak-button, .action-link {
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+}
+
+/* --- START: สไตล์สำหรับปุ่มย้อนกลับ --- */
+
+/* 
+  ทำให้กล่อง .container เป็นจุดอ้างอิงสำหรับการจัดวางปุ่ม 
+  (สำคัญมากเพื่อให้ปุ่มย้อนกลับอยู่ถูกที่)
+*/
+.container {
+    position: relative;
+}
+
+/* สไตล์ของปุ่มย้อนกลับ */
+.back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 44px;
+    height: 44px;
+    background-color: #f0f2f5;
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #333;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    background-color: #e3e6e9;
+    transform: scale(1.1);
+}
+
+/* --- END: สไตล์สำหรับปุ่มย้อนกลับ --- */
+
+/* กล่องครอบปุ่มด้านล่างทั้งหมดในหน้า result */
+.result-actions {
+    margin-top: 35px; /* เว้นระยะจากปุ่มเล่นเสียง */
+    padding-top: 25px;
+    border-top: 1px solid #e6ecf5; /* เพิ่มเส้นคั่นบางๆ */
+    display: flex;
+    flex-direction: column; /* จัดเรียงปุ่มแนวตั้ง */
+    align-items: center; /* จัดให้อยู่กึ่งกลาง */
+    gap: 15px; /* ระยะห่างระหว่างปุ่มร้องเรียนกับลิงก์กลับ */
+}
+
+/* สไตล์ปุ่ม "ร้องเรียนผลิตภัณฑ์" ให้ใหญ่และเด่น */
+.complaint-button {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    /* ใช้สีโทนแดง/ส้ม เพื่อให้รู้สึกถึงการแจ้งเตือน/ร้องเรียน */
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    border: none;
+    border-radius: 30px; /* ทำให้มุมมนเหมือนปุ่มอื่น */
+    box-shadow: 0 8px 18px rgba(255, 126, 95, 0.4);
+    transition: all 0.3s ease;
+}
+
+.complaint-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(255, 126, 95, 0.6);
+}
+
+/* สไตล์ลิงก์ "กลับไปหน้าสแกน" ให้ดูเรียบง่าย */
+.back-link {
+    font-size: 1rem;
+    color: #6c757d; /* สีเทา ไม่เด่น */
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #343a40; /* เข้มขึ้นเมื่อเมาส์ชี้ */
+    text-decoration: underline;
+}
+
+/* Style ของไอคอนเมนู (Hamburger) */
+.menu-icon {
+    position: absolute; /* หรือ absolute หากต้องการให้อยู่กับ container */
+    top: 20px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 1002; /* ให้อยู่เหนือทุกอย่าง */
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 30px;
+    height: 3px;
+    background-color: #333; /* สีของขีดเมนู */
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+/* Style ของแถบเมนูด้านข้าง (Sidenav) */
+.sidenav {
+    height: 100%;
+    width: 0; /* เริ่มต้นด้วยการซ่อนไว้ */
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    right: 0;
+    background-color: #f8f9fa; /* สีพื้นหลังของเมนู */
+    overflow-x: hidden; /* ป้องกันการ scroll แนวนอน */
+    transition: 0.5s; /* ความเร็วในการสไลด์ */
+    padding-top: 118px;
+    box-shadow: -4px 0px 15px rgba(0,0,0,0.1);
+}
+
+/* Style ของลิงก์ในเมนู */
+.sidenav a {
+    padding: 15px 20px 15px 32px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #444;
+    display: flex; /* จัดไอคอนกับข้อความ */
+    align-items: center;
+    gap: 15px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    transition: 0.3s;
+    white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+}
+
+.sidenav a:hover {
+    color: #007bff; /* สีเมื่อเอาเมาส์ไปชี้ */
+    background-color: #e9ecef;
+}
+
+/* Style สำหรับ Overlay พื้นหลัง */
+.overlay {
+    position: fixed;
+    display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 1000; /* อยู่หลังเมนู แต่หน้าเนื้อหา */
+    transition: opacity 0.5s;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อแสดง Overlay */
+.overlay.active {
+    display: block;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อเปิดเมนู */
+.sidenav.open {
+    width: 300px; /* ความกว้างของเมนูเมื่อเปิด */
+}
+
