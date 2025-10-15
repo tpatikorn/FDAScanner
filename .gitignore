@@ -1,0 +1,11 @@
+.venv/
+scanimages/
+SOUND_FOLDER/
+static/*.mp3
+static/aaa
+static/audio
+static/pdf
+static/uploads
+test_images
+.env
+fda.sql
