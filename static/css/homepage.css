@@ -1,0 +1,357 @@
+:root {
+    --primary-bg: #e3f2fd;
+    --primary-blue: #1e88e5;
+    --dark-blue: #0d47a1;
+    --accent-blue: #42a5f5;
+    --white: #ffffff;
+    --gray-text: #5f6368;
+    --light-gray: #e0e0e0;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    background-color: var(--primary-bg);
+    overflow: hidden; /* ป้องกันการเลื่อนใน body โดยตรง */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.8rem, 2.5vh, 1.2rem);
+}
+
+.logo {
+    background-color: var(--white);
+    border-radius: 28px;
+    padding: clamp(15px, 3vw, 20px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo img {
+    height: clamp(65px, 15vw, 80px);
+    width: auto;
+}
+
+.welcome-text h1 {
+    color: var(--dark-blue);
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
+}
+
+.welcome-text h2 {
+    color: var(--primary-blue);
+    font-weight: 400;
+    margin: 0.25rem 0 0 0;
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+}
+
+.camera-text {
+    color: var(--gray-text);
+    font-weight: 500;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.camera-action-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 12px;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: float-anim 3s ease-in-out infinite;
+}
+
+.camera-action-link:hover {
+    transform: scale(1.05);
+    animation-play-state: paused;
+}
+
+.camera-icon-wrapper {
+    position: relative;
+}
+
+.camera-icon-wrapper svg {
+    width: clamp(150px, 40vw, 180px);
+    height: auto;
+    filter: drop-shadow(0 8px 16px rgba(30, 136, 229, 0.3));
+}
+
+.sparkle {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    width: clamp(20px, 5vw, 30px);
+    height: clamp(20px, 5vw, 30px);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z' /%3E%3C/svg%3E");
+    background-size: contain;
+    animation: sparkle-anim 2s infinite ease-in-out;
+}
+
+@keyframes sparkle-anim {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
+}
+
+@keyframes float-anim {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+    margin-top: 12px;
+}
+
+.report-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background-color: skyblue;
+    color: var(--gray-text);
+    border: 1px solid #ffffff;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+}
+
+.report-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: var(--dark-blue);
+    border-color: #ccc;
+}
+
+.report-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--accent-blue);
+    opacity: 0.15;
+    z-index: 1;
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    left: -120px;
+}
+
+.shape-2 {
+    width: 250px;
+    height: 250px;
+    bottom: -80px;
+    right: -90px;
+    background-color: var(--white);
+    opacity: 0.5;
+}
+
+.shape-3 {
+    width: 150px;
+    height: 150px;
+    bottom: 120px;
+    left: 5%;
+    background-color: var(--white);
+    opacity: 0.4;
+}
+
+/* === START: Tutorial Popup CSS === */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tutorial-overlay.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tutorial-popup {
+    background-color: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 25px 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+.tutorial-overlay.show .tutorial-popup {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.popup-icon {
+    margin-bottom: 15px;
+}
+
+.popup-icon svg {
+    width: 50px;
+    height: 50px;
+    color: var(--primary-blue);
+}
+
+.tutorial-popup h3 {
+    color: var(--dark-blue);
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.tutorial-popup ol {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    color: var(--gray-text);
+}
+
+.tutorial-popup li {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5;
+}
+
+.tutorial-popup li .step-number {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    background-color: var(--accent-blue);
+    color: var(--white);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.close-tutorial-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    width: 100%;
+}
+
+.close-tutorial-btn:hover {
+    background-color: var(--dark-blue);
+    transform: translateY(-2px);
+}
+
+/* === END: Tutorial Popup CSS === */
+
+/* START: แก้ไขจุดที่ 2 และ 3 - Responsive บนมือถือ */
+@media (max-width: 600px) {
+    /*
+      จุดที่ 2: ซ่อนองค์ประกอบตกแต่งที่ทำให้หน้าจอล้น
+    */
+    .shape {
+        display: none;
+    }
+
+    .tutorial-popup {
+        /*
+          จุดที่ 3: ลดขนาดกรอบและองค์ประกอบภายในให้กระชับขึ้น
+        */
+        max-width: 90%; /* กำหนดให้กว้าง 90% ของจอ */
+        padding: 20px;
+    }
+
+    .popup-icon {
+        margin-bottom: 8px;
+    }
+
+    .popup-icon svg {
+        width: 38px;
+        height: 38px;
+    }
+
+    .tutorial-popup h3 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .tutorial-popup ol {
+        margin-bottom: 18px;
+        font-size: 0.875rem;
+    }
+
+    .tutorial-popup li {
+        line-height: 1.4;
+    }
+
+    .close-tutorial-btn {
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('fda_scan.static', filename='favicon.ico') }}">
+    <title>{% block title %}FDA Registration Scanner{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Side Navigation -->
+    <div id="sideNav" class="sidenav">
+        <a href="{{ url_for('fda_scan.scan_home') }}">📱 สแกนเลข อย.</a>
+        <a href="{{ url_for('fda_scan.manual') }}">📖 คู่มือการใช้งาน</a>
+        <a href="{{ url_for('fda_scan.form') }}">✍️ แจ้งเรื่องร้องเรียนผลิตภัณฑ์</a>
+        <a href="{{ url_for('fda_scan.fab_dashboard') }}">📊 สถิติประวัติการร้องเรียน</a>
+        <a href="{{ url_for('fda_scan.profile') }}">👥 คณะผู้จัดทำ</a>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- App Header with Home Button and Menu -->
+    <div class="app-header">
+        <a href="{{ url_for('fda_scan.homepage') }}" class="back-button" aria-label="กลับไปหน้าหลัก">🏠</a>
+        <div class="menu-icon" id="menuIcon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <script src="{{ url_for('fda_scan.static', filename='js/base.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

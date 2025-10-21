@@ -1,0 +1,188 @@
+/* ... (โค้ด CSS ส่วนอื่น ๆ เหมือนเดิม) ... */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* =================================
+   7. พื้นหลังแบบเคลื่อนไหว (Animated Gradient)
+   ================================= */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem;
+
+    /* --- โค้ดสำหรับพื้นหลัง --- */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+}
+
+/* =================================
+   (โค้ด CSS ส่วนที่เหลือเหมือนเดิมทั้งหมด)
+   ================================= */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+}
+
+.page-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px;
+    margin: 0;
+}
+
+.main-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 4px;
+    background-color: #3498db;
+    border-radius: 2px;
+}
+
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.profile-card {
+    background-color: rgba(255, 255, 255, 0.9); /* ทำให้โปร่งแสงเล็กน้อย */
+    backdrop-filter: blur(10px); /* เพิ่มเอฟเฟกต์กระจกฝ้า */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #3498db;
+    margin-bottom: 1.5rem;
+}
+
+.card-content {
+    text-align: center;
+}
+
+.card-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+
+.card-content .info {
+    font-size: 1rem;
+    color: #7f8c8d;
+    line-height: 1.8;
+}
+
+.card-content .info strong {
+    color: #5d6d7e;
+}
+
+.social-links {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.social-links a img {
+    width: 32px;
+    height: 32px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.social-links a:hover img {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .back-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .main-title {
+        font-size: 2rem;
+    }
+
+    .profile-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-card {
+        width: 95%;
+        max-width: 380px;
+    }
+
+    .card-content .info {
+        font-size: 0.95rem;
+    }
+}

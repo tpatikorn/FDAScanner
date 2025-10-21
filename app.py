@@ -190,8 +190,6 @@ def process_single_image(img):
 
             if cropped_img.size == 0: continue
 
-            cv2.imwrite("C:/Users/tpatikorn/PycharmProjects/FDAScanner/cropped.jpeg", img)
-            cv2.imwrite("C:/Users/tpatikorn/PycharmProjects/FDAScanner/cropped2.jpeg", cropped_img)
             # ทางเลือกที่ 1: อ่าน OCR โดยตรง
             detected_number = read_numbers(cropped_img)
 

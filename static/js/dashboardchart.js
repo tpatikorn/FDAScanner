@@ -1,77 +1,3 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <!-- Chart.js และ Plugin Datalabels -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='css/dashboardchart.css') }}">
-</head>
-<body>
-  <h2>สถิติประวัติการรายงาน</h2>
-
-  <!-- การ์ดสรุป -->
-  <div class="summary-container">
-    <div class="summary-card">
-      <h3>จำนวนข้อมูลที่รายงานทั้งหมด</h3>
-      <p>{{ dashboard_data.kpi.total_complaints|default(0)|int }}</p>
-    </div>
-  </div>
-
-  <!-- กราฟ -->
-  <div class="container">
-    <!-- Pie Chart -->
-    <div class="chart-container">
-      <h3>อัตราส่วนการรายงานแต่ละหมวดหมู่</h3>
-      <div class="chart-canvas-container">
-        <canvas id="pieChart"></canvas>
-        <p class="loading-text" id="pieChartPlaceholder">กำลังโหลดข้อมูล...</p>
-      </div>
-    </div>
-
-    <!-- Area Chart -->
-    <div class="chart-container">
-      <h3>แนวโน้มอัตราส่วนหมวดหมู่</h3>
-      <div class="view-buttons">
-        <button onclick="switchView('month')">รายเดือน</button>
-        <button onclick="switchView('year')">รายปี</button>
-      </div>
-      <div class="chart-canvas-container">
-        <canvas id="areaChart"></canvas>
-        <p class="loading-text" id="areaChartPlaceholder">กำลังโหลดข้อมูล...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ตารางอันดับจังหวัด -->
-<div class="table-container">
-  <h3 style="text-align:center; color:#c2185b;">อันดับจังหวัดที่มีการรายงานสูงสุด</h3>
-  <table>
-    <thead>
-      <tr><th>อันดับ</th><th>จังหวัด</th><th>จำนวนรายงาน</th></tr>
-    </thead>
-    <tbody>
-      {% if dashboard_data and dashboard_data.kpi and dashboard_data.kpi.top_provinces %}
-        {% for province in dashboard_data.kpi.top_provinces %}
-        <tr>
-          <td>{{ loop.index }}</td>
-          <!-- แก้ไขบรรทัดนี้ -->
-          <td>{{ province.province_name|default('N/A') }}</td>
-          <!-- /สิ้นสุดการแก้ไข -->
-          <td>{{ province.count|default(0) }}</td>
-        </tr>
-        {% endfor %}
-      {% else %}
-        <tr><td colspan="3">ไม่มีข้อมูล</td></tr>
-      {% endif %}
-    </tbody>
-  </table>
-</div>
-
-  <!-- Script -->
-  <script>
     document.addEventListener('DOMContentLoaded', function() {
       const dashboardData = {{ dashboard_data|tojson }};
 
@@ -101,7 +27,7 @@
                 color: '#fff',
                 formatter: (value, ctx) => {
                   const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                  return total ? (value * 100 / total).toFixed(1) + "%" : '';
+                  return total ? (value * 100 / total).toFixed(1) + \"%\" : '';
                 }
               }
             }
@@ -186,6 +112,3 @@
         }
       };
     });
-  </script>
-</body>
-</html>

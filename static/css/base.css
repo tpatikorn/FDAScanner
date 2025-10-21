@@ -1,0 +1,269 @@
+/* Base CSS for common styles */
+
+/* Root variables */
+:root {
+    --primary-bg: #e3f2fd;
+    --primary-blue: #1e88e5;
+    --dark-blue: #0d47a1;
+    --accent-blue: #42a5f5;
+    --white: #ffffff;
+    --gray-text: #5f6368;
+    --light-gray: #e0e0e0;
+}
+
+/* Global styles */
+body {
+    font-family: 'Kanit', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* สไตล์ของปุ่มย้อนกลับ */
+.back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 44px;
+    height: 44px;
+    background-color: #f0f2f5;
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #333;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    background-color: #e3e6e9;
+    transform: scale(1.1);
+}
+
+/* --- END: สไตล์สำหรับปุ่มย้อนกลับ --- */
+
+/* กล่องครอบปุ่มด้านล่างทั้งหมดในหน้า result */
+.result-actions {
+    margin-top: 35px; /* เว้นระยะจากปุ่มเล่นเสียง */
+    padding-top: 25px;
+    border-top: 1px solid #e6ecf5; /* เพิ่มเส้นคั่นบางๆ */
+    display: flex;
+    flex-direction: column; /* จัดเรียงปุ่มแนวตั้ง */
+    align-items: center; /* จัดให้อยู่กึ่งกลาง */
+    gap: 15px; /* ระยะห่างระหว่างปุ่มร้องเรียนกับลิงก์กลับ */
+}
+
+/* สไตล์ปุ่ม "ร้องเรียนผลิตภัณฑ์" ให้ใหญ่และเด่น */
+.complaint-button {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    /* ใช้สีโทนแดง/ส้ม เพื่อให้รู้สึกถึงการแจ้งเตือน/ร้องเรียน */
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    border: none;
+    border-radius: 30px; /* ทำให้มุมมนเหมือนปุ่มอื่น */
+    box-shadow: 0 8px 18px rgba(255, 126, 95, 0.4);
+    transition: all 0.3s ease;
+}
+
+.complaint-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(255, 126, 95, 0.6);
+}
+
+/* Style ของไอคอนเมนู (Hamburger) */
+.menu-icon {
+    position: absolute; /* หรือ absolute หากต้องการให้อยู่กับ container */
+    top: 20px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 1002; /* ให้อยู่เหนือทุกอย่าง */
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 30px;
+    height: 3px;
+    background-color: #333; /* สีของขีดเมนู */
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+/* Style ของลิงก์ในเมนู */
+.sidenav a {
+    padding: 15px 20px 15px 32px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #444;
+    display: flex; /* จัดไอคอนกับข้อความ */
+    align-items: center;
+    transition: 0.3s;
+    white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+}
+
+.sidenav a:hover {
+    color: #007bff; /* สีเมื่อเอาเมาส์ไปชี้ */
+    background-color: #e9ecef;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อแสดง Overlay */
+.overlay.active {
+    display: block;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อเปิดเมนู */
+.sidenav.open {
+    width: 300px; /* ความกว้างของเมนูเมื่อเปิด */
+}
+
+
+/* Style ของแถบเมนูด้านข้าง (Sidenav) */
+.sidenav {
+    height: 100%;
+    width: 0; /* เริ่มต้นด้วยการซ่อนไว้ */
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    right: 0;
+    background-color: #f8f9fa; /* สีพื้นหลังของเมนู */
+    overflow-x: hidden; /* ป้องกันการ scroll แนวนอน */
+    transition: 0.5s; /* ความเร็วในการสไลด์ */
+    padding-top: 118px;
+    box-shadow: -4px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+.overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    transition: opacity 0.5s;
+}
+
+
+/* Style ของไอคอนเมนู (Hamburger) */
+.menu-icon {
+    position: absolute; /* หรือ absolute หากต้องการให้อยู่กับ container */
+    top: 20px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 1002; /* ให้อยู่เหนือทุกอย่าง */
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 30px;
+    height: 3px;
+    background-color: #333; /* สีของขีดเมนู */
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+/* Style ของลิงก์ในเมนู */
+.sidenav a {
+    padding: 15px 20px 15px 32px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #444;
+    display: flex; /* จัดไอคอนกับข้อความ */
+    align-items: center;
+    gap: 15px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    transition: 0.3s;
+    white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+}
+
+.sidenav a:hover {
+    color: #007bff; /* สีเมื่อเอาเมาส์ไปชี้ */
+    background-color: #e9ecef;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อแสดง Overlay */
+.overlay.active {
+    display: block;
+}
+
+/* Class ที่จะใช้กับ JavaScript เพื่อเปิดเมนู */
+.sidenav.open {
+    width: 300px; /* ความกว้างของเมนูเมื่อเปิด */
+}
+
+/* Base body styles for form-like pages */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Common container styles */
+.container {
+    max-width: 600px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Common h1 styles */
+h1 {
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Common app header styles */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem 1rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+}
+
+/* Common media queries for mobile */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        margin: 10px auto;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .back-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+        margin: 5px auto;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        padding: 0 45px;
+    }
+}
+

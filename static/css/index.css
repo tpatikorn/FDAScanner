@@ -1,0 +1,30 @@
+        /* จัดการ Layout ของ Body เพื่อให้ Header และ Container แยกกัน */
+        body {
+            padding-top: 1rem;
+        }
+
+
+
+        /* 2. ปรับแก้ Container (Card หลัก) */
+        .container {
+            margin-top: 0;
+            /* START: แก้ไขตรงนี้ ลด padding-top ลง */
+            padding-top: 0.90rem;
+            /* END: แก้ไขตรงนี้ */
+        }
+
+        /* 3. สไตล์สำหรับหัวข้อ H1 ที่ย้ายกลับเข้ามาใน Card */
+        .container h1 {
+            text-align: center;
+            /* START: แก้ไขตรงนี้ ปรับ margin-bottom ให้สมดุล */
+            margin: 0 0 0.90rem 0;
+            /* END: แก้ไขตรงนี้ */
+            font-size: 1.5rem;
+        }
+
+        /* Responsive สำหรับมือถือ */
+        @media (max-width: 480px) {
+            .container h1 {
+                font-size: 1.2rem;
+            }
+        }

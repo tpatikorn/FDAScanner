@@ -1,116 +1,43 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDA Registration Scanner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='style.css') }}">
+{% extends 'base.html' %}
+{% block extra_head %}
+    <title>ยินดีต้อนรับ - ระบบตรวจสอบผลิตภัณฑ์</title>
+    <link rel="stylesheet" href="{{ url_for('fda_scan.static', filename='css/index.css') }}">
+    <script src="{{ url_for('fda_scan.static', filename='js/script.js') }}"></script>
+{% endblock %}
 
-    <!-- START: CSS สำหรับแก้ไข Layout ใหม่ -->
-    <style>
-        /* จัดการ Layout ของ Body เพื่อให้ Header และ Container แยกกัน */
-        body {
-            padding-top: 1rem;
-        }
+{% block content %}
+    <div class="container">
 
-        /* 1. สร้าง Header Bar ใหม่ สำหรับวางปุ่มต่างๆ โดยเฉพาะ */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 1rem 1rem 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 10;
-        }
+        <!-- START: นำหัวข้อ H1 กลับเข้ามาอยู่ใน Card -->
+        <h1>สแกนเลข อย. 13 หลัก</h1>
+        <!-- END: นำหัวข้อ H1 กลับมา -->
 
-        /* 2. ปรับแก้ Container (Card หลัก) */
-        .container {
-            margin-top: 0;
-            /* START: แก้ไขตรงนี้ ลด padding-top ลง */
-            padding-top: 0.90rem;
-            /* END: แก้ไขตรงนี้ */
-        }
-
-        /* 3. สไตล์สำหรับหัวข้อ H1 ที่ย้ายกลับเข้ามาใน Card */
-        .container h1 {
-            text-align: center;
-            /* START: แก้ไขตรงนี้ ปรับ margin-bottom ให้สมดุล */
-            margin: 0 0 0.90rem 0;
-            /* END: แก้ไขตรงนี้ */
-            font-size: 1.5rem;
-        }
-
-        /* Responsive สำหรับมือถือ */
-        @media (max-width: 480px) {
-            .container h1 {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
-    <!-- END: CSS สำหรับแก้ไข Layout ใหม่ -->
-
-</head>
-<body>
-<!-- เมนูและ Overlay ยังคงเหมือนเดิม -->
-<div id="sideNav" class="sidenav">
-    <a href="{{ url_for('fda_scan.scan_home') }}">📱 สแกนเลข อย.</a>
-    <a href="{{ url_for('fda_scan.manual') }}">📖 คู่มือการใช้งาน</a>
-    <a href="{{ url_for('fda_scan.form') }}">✍️ แจ้งเรื่องร้องเรียนผลิตภัณฑ์</a>
-    <a href="{{ url_for('fda_scan.fab_dashboard') }}">📊 สถิติประวัติการร้องเรียน</a>
-    <a href="{{ url_for('fda_scan.profile') }}">👥 คณะผู้จัดทำ</a>
-</div>
-<div id="overlay" class="overlay"></div>
-
-
-<!-- START: ย้ายปุ่มย้อนกลับและเมนูออกมานอก .container -->
-<div class="app-header">
-    <a href="/fda_scan/" class="back-button" aria-label="กลับไปหน้าหลัก">⬅️</a>
-    <div class="menu-icon" id="menuIcon">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
-</div>
-<!-- END: ย้ายปุ่มออกมา -->
-
-
-<div class="container">
-
-    <!-- START: นำหัวข้อ H1 กลับเข้ามาอยู่ใน Card -->
-    <h1>สแกนเลข อย. 13 หลัก</h1>
-    <!-- END: นำหัวข้อ H1 กลับมา -->
-
-    <!-- ส่วนของวิดีโอ (เนื้อหาหลัก) -->
-    <div class="video-container">
-        <video id="videoElement" autoplay playsinline></video>
-        <div class="scan-overlay">
-            <div class="overlay-text">วางกรอบเลข อย. ที่กำหนดไว้</div>
-        </div>
-        <button id="switchCamera" class="switch-button">🔄</button>
-    </div>
-
-    <div id="status-box">
-        <div id="loadingIndicator" class="loading-indicator">
-            <div class="loader"></div>
-            <p>กำลังประมวลผลการสแกน...</p>
-        </div>
-        <div id="errorMessage" class="error-message"></div>
-
-        <div id="zoom-container" class="zoom-controls">
-            <span>🔎</span>
-            <input type="range" id="zoomSlider" min="1" max="5" step="0.1">
+        <!-- ส่วนของวิดีโอ (เนื้อหาหลัก) -->
+        <div class="video-container">
+            <video id="videoElement" autoplay playsinline></video>
+            <div class="scan-overlay">
+                <div class="overlay-text">วางกรอบเลข อย. ที่กำหนดไว้</div>
+            </div>
+            <button id="switchCamera" class="switch-button">🔄</button>
         </div>
 
-        <canvas id="canvas" style="display:none;"></canvas>
+        <div id="status-box">
+            <div id="loadingIndicator" class="loading-indicator">
+                <div class="loader"></div>
+                <p>กำลังประมวลผลการสแกน...</p>
+            </div>
+            <div id="errorMessage" class="error-message"></div>
 
-        <button id="capture" class="scan-button">แตะเพื่อสแกน</button>
+            <div id="zoom-container" class="zoom-controls">
+                <span>🔎</span>
+                <input type="range" id="zoomSlider" min="1" max="5" step="0.1">
+            </div>
 
+            <canvas id="canvas" style="display:none;"></canvas>
+
+            <button id="capture" class="scan-button">แตะเพื่อสแกน</button>
+
+        </div>
     </div>
-</div>
 
-<script src="{{ url_for('fda_scan.static', filename='script.js') }}"></script>
-</body>
-</html>
+{% endblock %}

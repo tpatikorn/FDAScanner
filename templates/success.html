@@ -353,17 +353,6 @@
                 border-top: 1px solid var(--border-color);
             }
 
-            .home-button {
-                display: inline-block;
-                padding: 14px 35px;
-                background-color: var(--primary-blue);
-                color: var(--white);
-                text-decoration: none;
-                font-size: 1.1rem;
-                font-weight: 500;
-                border-radius: 50px;
-                transition: background-color 0.3s, transform 0.2s;
-            } 
         }
         /* ===== สิ้นสุด Responsive Adjustments ===== */
     </style>
@@ -478,10 +467,6 @@
     {# ปุ่มเซฟ PDF ที่มุมล่างขวา (แสดงเฉพาะบนเว็บ) #}
     <div class="download-button-container">
         <a href="{{ pdf_url }}" class="download-button" download="Product_Complaint_Report.pdf" title="ดาวน์โหลด PDF">ดาวน์โหลด PDF</a>
-    </div>
-
-    <div class="home-button-wrapper">
-        <a href="{{ url_for('fda_scan.scan_home') }}" class="home-button">กลับสู่หน้าสแกน</a>
     </div>
 
     {# ===== ส่วนของ JavaScript เพื่อจัดการการซูมรูปภาพเมื่อคลิก ===== #}

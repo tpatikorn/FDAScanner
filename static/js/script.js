@@ -1,7 +1,7 @@
 // script.js (เวอร์ชันรวมระบบกล้อง, ซูม, และเมนูด้านข้าง)
 
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // ======================================
     //     ส่วนควบคุมกล้องและการสแกน
     // ======================================
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function applyZoom() {
         if (videoTrack && 'zoom' in videoTrack.getCapabilities()) {
             try {
-                videoTrack.applyConstraints({ advanced: [{ zoom: zoomSlider.value }] });
+                videoTrack.applyConstraints({advanced: [{zoom: zoomSlider.value}]});
             } catch (err) {
                 console.error('applyConstraints(zoom) failed: ', err);
             }
@@ -36,14 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
-        
+
         // ซ่อนแถบซูมก่อนเริ่มเสมอ
         if (zoomContainer) {
             zoomContainer.style.display = 'none';
         }
 
         const constraints = {
-            video: { facingMode: isFrontCamera ? "user" : "environment" },
+            video: {facingMode: isFrontCamera ? "user" : "environment"},
             audio: false
         };
 
@@ -61,17 +61,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if ('zoom' in capabilities) {
                 // ถ้าใช่ ให้แสดงแถบเลื่อน
                 if (zoomContainer) zoomContainer.style.display = 'flex';
-                
+
                 // ตั้งค่า min, max, step ของแถบเลื่อนตามความสามารถจริงของกล้อง
                 if (zoomSlider) {
                     zoomSlider.min = capabilities.zoom.min;
                     zoomSlider.max = capabilities.zoom.max;
                     zoomSlider.step = capabilities.zoom.step;
-                    
+
                     // ตั้งค่าเริ่มต้นของแถบเลื่อน
                     const currentZoom = videoTrack.getSettings().zoom || capabilities.zoom.min;
                     zoomSlider.value = currentZoom;
-                    
+
                     // เพิ่ม Event Listener ให้กับแถบเลื่อน
                     zoomSlider.addEventListener('input', applyZoom);
                 }
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await response.json();
             if (response.ok && data.number && data.number !== "ไม่พบเลข") {
-                if(data.number.length === 13) {
+                if (data.number.length === 13) {
                     window.location.href = `/fda_scan/result?number=${data.number}&image=${data.image_filename}`;
                 } else {
                     throw new Error(data.error || `พบเลข อย. 13 หลักที่ไม่ชัดเจน ${data.number}`);
@@ -145,42 +145,4 @@ document.addEventListener("DOMContentLoaded", () => {
         startCamera();
     }
 
-
-    // ======================================
-    //  JavaScript สำหรับ Side Navigation Menu
-    // ======================================
-
-    // ดึง Element ที่จำเป็นสำหรับเมนู
-    const menuIcon = document.getElementById('menuIcon');
-    const sideNav = document.getElementById('sideNav');
-    const overlay = document.getElementById('overlay');
-
-    // ฟังก์ชันสำหรับเปิดเมนู
-    function openNav() {
-        if (sideNav) sideNav.classList.add('open');
-        if (overlay) overlay.classList.add('active');
-    }
-
-    // ฟังก์ชันสำหรับปิดเมนู
-    function closeNav() {
-        if (sideNav) sideNav.classList.remove('open');
-        if (overlay) overlay.classList.remove('active');
-    }
-
-    // แทนที่ Event Listener เดิมด้วยโค้ดนี้
-    if (menuIcon) {
-        menuIcon.addEventListener('click', () => {
-            // ตรวจสอบว่าเมนูกำลังเปิดอยู่หรือไม่
-            if (sideNav.classList.contains('open')) {
-                closeNav(); // ถ้าเปิดอยู่ ให้ปิด
-            } else {
-                openNav(); // ถ้าปิดอยู่ ให้เปิด
-            }
-        });
-    }
-    
-    if (overlay) {
-        // เมื่อคลิกที่พื้นที่มืดๆ (overlay) ให้ปิดเมนู
-        overlay.addEventListener('click', closeNav);
-    }
 });
