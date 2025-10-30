@@ -46,11 +46,12 @@ dotenv.load_dotenv()
 # --- Configuration Section (จาก app.py) ---
 UPLOAD_FOLDER = 'static/uploads'
 # --- START: เพิ่มโฟลเดอร์ใหม่ ---
-REPORT_IMAGE_FOLDER = 'static/aaa'  # โฟลเดอร์สำหรับ "รูปที่ต้องการรายงาน"
+REPORT_IMAGE_FOLDER = 'static/uploads_additional'  # โฟลเดอร์สำหรับ "รูปที่ต้องการรายงาน"
 # --- END: เพิ่มโฟลเดอร์ใหม่ ---
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'ไgif'}
 SCAN_FOLDER = 'scanimages'  # โฟลเดอร์สำหรับรูปภาพที่สแกน
+AUDIO_FOLDER = "audio"
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -310,7 +311,7 @@ def result():
     tts = gTTS(text=text_to_speak, lang='th')
 
     audio_filename = f"{uuid.uuid4().hex}.mp3"
-    audio_path_local = os.path.join(bp.static_folder, audio_filename)
+    audio_path_local = os.path.join(AUDIO_FOLDER, audio_filename)
     tts.save(audio_path_local)
     product_data['audio_path'] = url_for('fda_scan.static', filename=audio_filename)
 

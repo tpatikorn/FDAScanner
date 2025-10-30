@@ -454,7 +454,7 @@
                 {% elif data.report_images %}
                     {% for image_filename in data.report_images %}
                         {% if image_filename %}
-                             <img src="{{ url_for('fda_scan.static', filename='aaa/' + image_filename) }}" alt="รูปภาพที่ต้องการรายงาน">
+                             <img src="{{ url_for('fda_scan.static', filename='uploads_additional/' + image_filename) }}" alt="รูปภาพที่ต้องการรายงาน">
                         {% endif %}
                     {% endfor %}
                 {% endif %}
