@@ -1,12 +1,12 @@
 .venv/
 .idea/
-scanimages/
+uploads/image_scan_fda/
 SOUND_FOLDER/
 static/*.mp3
-static/uploads_additional
-static/audio
-static/pdf
-static/uploads
+uploads/image_report_additional
+uploads/audio
+uploads/pdf
+uploads/image_report_fda
 test_images
 .env
 fda.sql

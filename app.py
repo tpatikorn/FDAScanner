@@ -12,30 +12,29 @@ import re
 from collections import defaultdict
 from difflib import SequenceMatcher
 
-# Imports จากฝั่ง Machine Learning และ Web Scraping (app2.py)
 import cv2
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
+from fontTools.ufoLib import IMAGES_DIRNAME
 from gtts import gTTS
-from torch.jit import frontend
 from ultralytics import YOLO
 import easyocr
 
-# Imports จากฝั่ง Flask และ Web Server
 from flask import (Flask, send_from_directory, render_template, request,
-                   redirect, url_for, jsonify, make_response, Blueprint)
+                   url_for, jsonify, make_response, Blueprint)
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 from flask_mail import Mail, Message
 
 import dotenv
-from os import getenv
 
 # ==========================================================
 #              FLASK APP INITIALIZATION & CONFIG
 # ==========================================================
+
+DEBUG_DO_SEND_EMAIL = False
+
 bp = Blueprint('fda_scan', __name__, template_folder='templates', static_folder='static')
 
 app = Flask(__name__, static_folder="static")
@@ -43,22 +42,23 @@ CORS(app)  # เปิดใช้งาน CORS สำหรับทุก Rou
 
 dotenv.load_dotenv()
 
-# --- Configuration Section (จาก app.py) ---
-UPLOAD_FOLDER = 'static/uploads'
-# --- START: เพิ่มโฟลเดอร์ใหม่ ---
-REPORT_IMAGE_FOLDER = 'static/uploads_additional'  # โฟลเดอร์สำหรับ "รูปที่ต้องการรายงาน"
-# --- END: เพิ่มโฟลเดอร์ใหม่ ---
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'ไgif'}
-SCAN_FOLDER = 'scanimages'  # โฟลเดอร์สำหรับรูปภาพที่สแกน
-AUDIO_FOLDER = "audio"
+
+PDF_FOLDER = "uploads/pdf"
+AUDIO_FOLDER = "uploads/audio"
+IMAGE_REPORT_FDA_FOLDER = 'uploads/image_report_fda'
+IMAGE_SCAN_FDA_FOLDER = 'uploads/image_scan_fda'  # โฟลเดอร์สำหรับรูปภาพที่สแกน
+IMAGE_REPORT_ADDITIONAL_FOLDER = 'uploads/image_report_additional'  # โฟลเดอร์สำหรับ "รูปที่ต้องการรายงาน"
+VUE_FOLDER = "uploads/vue_dashboard"
+
+RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = getenv('MAIL_PASSWORD')  # เปลี่ยนเป็นรหัสผ่าน 16 หลักที่คุณสร้าง จาก Gmil
-app.config['MAIL_DEFAULT_SENDER'] = getenv('MAIL_DEFAULT_SENDER')  # ควรใช้บัญชีเดียวกับ MAIL_USERNAME
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # เปลี่ยนเป็นรหัสผ่าน 16 หลักที่คุณสร้าง จาก Gmil
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')  # ควรใช้บัญชีเดียวกับ MAIL_USERNAME
 mail = Mail(app)
 
 # ตรวจสอบ Path ของ wkhtmltopdf ให้ถูกต้องตามเครื่องของคุณหากใช้งานจริง
@@ -124,11 +124,11 @@ except Exception as e:
 def connect_db():
     try:
         conn = pymysql.connect(
-            host=getenv('DB_HOST'),
-            user=getenv('DB_USER'),
-            password=getenv('DB_PASSWORD'),
-            db=getenv('DB_NAME'),
-            port=int(getenv('DB_PORT')),
+            host=os.getenv('DB_HOST'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            db=os.getenv('DB_NAME'),
+            port=int(os.getenv('DB_PORT')),
             charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor
         )
         return conn
@@ -226,9 +226,9 @@ def scan_image():
     file = request.files["file"]
 
     if file.filename != '':
-        os.makedirs(SCAN_FOLDER, exist_ok=True)
+        os.makedirs(IMAGE_SCAN_FDA_FOLDER, exist_ok=True)
         filename = f"{uuid.uuid4().hex}.jpg"
-        save_path = os.path.join(SCAN_FOLDER, filename)
+        save_path = os.path.join(IMAGE_SCAN_FDA_FOLDER, filename)
         file.save(save_path)
         print(f"รูปภาพถูกบันทึกที่: {save_path}")
         img = cv2.imread(save_path)
@@ -313,7 +313,7 @@ def result():
     audio_filename = f"{uuid.uuid4().hex}.mp3"
     audio_path_local = os.path.join(AUDIO_FOLDER, audio_filename)
     tts.save(audio_path_local)
-    product_data['audio_path'] = url_for('fda_scan.static', filename=audio_filename)
+    product_data['audio_path'] = url_for("fda_scan.serve_audio", filename=audio_filename)
 
     com_fda_data = (
         f"เลขสารบบ อย.: {product_data['fda_number']}\n"
@@ -424,15 +424,15 @@ def form():
                 print("ข้อมูลที่อยู่ (ภูมิภาค, จังหวัด, อำเภอ, หรือตำบล) ไม่ถูกต้องหรือไม่ได้เลือก")
                 return "กรุณาเลือกข้อมูลสถานที่ให้ครบถ้วน", 400
 
-            # --- Handle image file uploads ---
+            # --- Handle image file image_report_fda ---
             image_filenames = []
             scanned_image_filename = request.form.get('scanned_image', '')
             if scanned_image_filename:
-                scanned_image_path = os.path.join(SCAN_FOLDER, scanned_image_filename)
+                scanned_image_path = os.path.join(IMAGE_SCAN_FDA_FOLDER, scanned_image_filename)
                 if os.path.exists(scanned_image_path):
                     import shutil
                     new_filename_for_upload = f"scanned_{uuid.uuid4().hex}.jpg"
-                    dest_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename_for_upload)
+                    dest_path = os.path.join(IMAGE_REPORT_FDA_FOLDER, new_filename_for_upload)
                     shutil.copy(scanned_image_path, dest_path)
                     image_filenames.append(new_filename_for_upload)
 
@@ -442,7 +442,7 @@ def form():
                 if file and allowed_file(file.filename) and len(image_filenames) < 5:
                     # สร้างชื่อไฟล์ใหม่เพื่อป้องกันการซ้ำกัน
                     filename = f"scanned_new_{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-                    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    save_path = os.path.join(IMAGE_REPORT_FDA_FOLDER, filename)
                     try:
                         file.save(save_path)
                         image_filenames.append(filename)
@@ -454,7 +454,7 @@ def form():
             for report_file in report_files[:4]:
                 if report_file and allowed_file(report_file.filename):
                     filename = f"report_{uuid.uuid4().hex}_{secure_filename(report_file.filename)}"
-                    save_path = os.path.join(REPORT_IMAGE_FOLDER, filename)
+                    save_path = os.path.join(IMAGE_REPORT_ADDITIONAL_FOLDER, filename)
                     try:
                         report_file.save(save_path)
                         report_image_filenames.append(filename)
@@ -484,7 +484,7 @@ def form():
                                                  tambon_id,
                                                  com_img1, com_img2, com_img3, com_img4, com_img5,
                                                  com_report_img1, com_report_img2, com_report_img3, com_report_img4)
-                          VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
                           """
                     cursor.execute(sql, (
                         com_name, com_surname, com_tel, com_email, com_code,
@@ -540,11 +540,10 @@ def form():
             }
 
             # --- PDF Generation ---
-            pdf_dir = os.path.join(app.root_path, 'static', 'pdf')
-            os.makedirs(pdf_dir, exist_ok=True)
+            os.makedirs(PDF_FOLDER, exist_ok=True)
             timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             pdf_filename = f'Product_Complaint_Form_{timestamp}_{uuid.uuid4().hex}.pdf'
-            pdf_path = os.path.join(pdf_dir, pdf_filename)
+            pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
             try:
                 options = {
                     'encoding': "UTF-8", 'enable-javascript': None, 'no-stop-slow-scripts': None,
@@ -556,7 +555,7 @@ def form():
                 for filename in display_data.get('images', []):
                     if filename:
                         try:
-                            full_path = os.path.join(UPLOAD_FOLDER, filename)
+                            full_path = os.path.join(IMAGE_REPORT_FDA_FOLDER, filename)
                             with open(full_path, "rb") as image_file:
                                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
                                 image_base64_data.append(f"data:image/jpeg;base64,{encoded_string}")
@@ -568,7 +567,7 @@ def form():
                 for filename in display_data.get('report_images', []):
                     if filename:
                         try:
-                            report_image_path = os.path.join(REPORT_IMAGE_FOLDER, filename)
+                            report_image_path = os.path.join(IMAGE_REPORT_ADDITIONAL_FOLDER, filename)
                             with open(report_image_path, "rb") as f:
                                 encoded_string = base64.b64encode(f.read()).decode('utf-8')
                                 report_images_base64_data.append(f"data:image/jpeg;base64,{encoded_string}")
@@ -584,7 +583,6 @@ def form():
                 print(f"เกิดข้อผิดพลาดในการสร้าง PDF: {e}")
 
             # --- Send Email ---
-            recipient_email = '1556@fda.moph.go.th'
             user_email = request.form.get('com_email')
             current_dt_formatted = datetime.datetime.now().strftime('%d %B %Y, %H:%M:%S')
             subject = f"การแจ้งเรื่องร้องเรียนเกี่ยวกับผลิตภัณฑ์ เลขสารบบ: {com_code}"
@@ -607,17 +605,23 @@ def form():
             # END: แก้ไข Subject และ Body ของอีเมล
 
             try:
-                msg = Message(subject, recipients=[recipient_email, user_email], reply_to=user_email)
+                msg = Message(subject, recipients=[RECIPIENT_EMAIL, user_email], reply_to=user_email)
                 msg.html = body
                 with open(pdf_path, 'rb') as fp:
                     msg.attach("Product_Complaint_Report.pdf", "application/pdf", fp.read())
-                mail.send(msg)
-                print(f"ส่งอีเมลสำเร็จถึง {recipient_email} และ {user_email}")
+                if DEBUG_DO_SEND_EMAIL:
+                    mail.send(msg)
+                    print(f"ส่งอีเมลสำเร็จถึง {RECIPIENT_EMAIL} และ {user_email}")
+                else:
+                    print(msg.html)
+                    for attachment in msg.attachments:
+                        print(attachment.filename)
+                    print(f"DEBUG_DO_SEND_EMAIL=False\nส่งอีเมลสำเร็จถึง {RECIPIENT_EMAIL} และ {user_email}")
             except Exception as e:
                 print(f"เกิดข้อผิดพลาดในการส่งอีเมล: {e}")
 
             # --- Render Success Page ---
-            pdf_url = url_for('fda_scan.static', filename=f'pdf/{pdf_filename}')
+            pdf_url = url_for('fda_scan.serve_pdf', filename=pdf_filename)
             response = make_response(
                 render_template('success.html', data=display_data, current_datetime=datetime.datetime.now(),
                                 pdf_url=pdf_url, for_pdf=False))
@@ -736,14 +740,14 @@ def get_dashboard_data():
 
         monthly_trends_data = {"labels": [], "datasets": []}
         sql_monthly_trends = """
-                             SELECT YEAR(created_at) as year, MONTH(created_at) as month, com_category, COUNT(created_at) as count 
-                             FROM complaint 
-                             WHERE created_at >= DATE_SUB(CURDATE() 
-                                 , INTERVAL 12 MONTH) 
-                               AND com_category IS NOT NULL 
-                               AND com_category != '' 
-                             GROUP BY YEAR(created_at), MONTH(created_at), com_category 
-                             ORDER BY year, month, com_category;  
+                             SELECT YEAR (created_at) as year, MONTH (created_at) as month, com_category, COUNT (created_at) as count
+                             FROM complaint
+                             WHERE created_at >= DATE_SUB(CURDATE()
+                                 , INTERVAL 12 MONTH)
+                               AND com_category IS NOT NULL
+                               AND com_category != ''
+                             GROUP BY YEAR (created_at), MONTH (created_at), com_category
+                             ORDER BY year, month, com_category; \
                              """
         cursor.execute(sql_monthly_trends)
         monthly_raw_data = cursor.fetchall()
@@ -776,14 +780,14 @@ def get_dashboard_data():
 
         yearly_trends_data = {"labels": [], "datasets": []}
         sql_yearly_trends = """
-                            SELECT YEAR(created_at) as year, com_category, COUNT(created_at) as count
+                            SELECT YEAR (created_at) as year, com_category, COUNT (created_at) as count
                             FROM complaint
                             WHERE created_at >= DATE_SUB(CURDATE()
                                 , INTERVAL 5 YEAR)
                               AND com_category IS NOT NULL
                               AND com_category != ''
-                            GROUP BY YEAR(created_at), com_category
-                            ORDER BY year, com_category; 
+                            GROUP BY YEAR (created_at), com_category
+                            ORDER BY year, com_category; \
                             """
         cursor.execute(sql_yearly_trends)
         yearly_raw_data = cursor.fetchall()
@@ -808,12 +812,14 @@ def get_dashboard_data():
         # --- 3. Data for Top Categories Chart (ส่วนนี้ไม่ต้องแก้) ---
         top_categories_chart_data = {"labels": [], "datasets": []}
         sql_top_categories = """
-                             SELECT com_category, COUNT(com_category) as count 
-                             FROM complaint 
-                             WHERE com_category IS NOT NULL 
-                               AND com_category != '' 
-                               AND com_category NOT IN ('ไม่ระบุ', 'ไม่ระระบุ') 
-                             GROUP BY com_category ORDER BY count DESC;"""
+                             SELECT com_category, COUNT(com_category) as count
+                             FROM complaint
+                             WHERE com_category IS NOT NULL
+                               AND com_category != ''
+                               AND com_category NOT IN ('ไม่ระบุ'
+                                 , 'ไม่ระระบุ')
+                             GROUP BY com_category
+                             ORDER BY count DESC;"""
         cursor.execute(sql_top_categories)
         top_categories_raw_data = cursor.fetchall()
         category_labels = [row['com_category'] for row in top_categories_raw_data]
@@ -869,15 +875,32 @@ def fab_dashboard():
 
 
 # --- Other Utility Routes ---
-@bp.route('/static/vue_dashboard/<path:filename>')
-def serve_vue_static(filename):
-    return send_from_directory(os.path.join(app.root_path, 'static', 'vue_dashboard'), filename)
+@bp.route('/vue_dashboard/<path:filename>')
+def serve_vue(filename):
+    return send_from_directory(VUE_FOLDER, filename)
 
 
-@bp.route('/images/<filename>')
-def get_image(filename):
-    """Serve a file from the scanimages directory."""
-    return send_from_directory(SCAN_FOLDER, filename)
+@bp.route('/image/<path:image_type>/<path:filename>')
+def serve_image(image_type, filename):
+    match image_type:
+        case "scan_fda":
+            return send_from_directory(IMAGE_SCAN_FDA_FOLDER, filename)
+        case "report_fda":
+            return send_from_directory(IMAGE_REPORT_FDA_FOLDER, filename)
+        case "report_additional":
+            return send_from_directory(IMAGE_REPORT_ADDITIONAL_FOLDER, filename)
+        case _:
+            return send_from_directory("static/images/", "fda.png")
+
+
+@bp.route('/audio/<path:filename>')
+def serve_audio(filename):
+    return send_from_directory(AUDIO_FOLDER, filename)
+
+
+@bp.route('/pdf/<path:filename>')
+def serve_pdf(filename):
+    return send_from_directory(PDF_FOLDER, filename)
 
 
 @bp.route('/favicon.ico')
@@ -895,7 +918,8 @@ def profile():
 # ==========================================================
 #                   MAIN EXECUTION BLOCK
 # ==========================================================
-for folder in [UPLOAD_FOLDER, 'static/pdf', SCAN_FOLDER, REPORT_IMAGE_FOLDER]:
+for folder in [IMAGE_REPORT_FDA_FOLDER, PDF_FOLDER, IMAGE_SCAN_FDA_FOLDER, IMAGE_REPORT_ADDITIONAL_FOLDER,
+               AUDIO_FOLDER]:
     os.makedirs(folder, exist_ok=True)
 
 app.register_blueprint(bp, url_prefix='/fda_scan')
