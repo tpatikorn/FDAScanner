@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 import cv2
 import requests
 from bs4 import BeautifulSoup
-from fontTools.ufoLib import IMAGES_DIRNAME
+
 from gtts import gTTS
 from ultralytics import YOLO
 import easyocr
@@ -32,6 +32,9 @@ import dotenv
 # ==========================================================
 #              FLASK APP INITIALIZATION & CONFIG
 # ==========================================================
+
+# to make sure the script can be run from any working dir
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG_DO_SEND_EMAIL = False
 
@@ -72,7 +75,7 @@ PDFKIT_CONFIG = pdfkit.configuration(
 
 # --- โหลดโมเดล Machine Learning (จาก app2.py) ---
 print("กำลังโหลดโมเดล YOLO...")
-model = YOLO("models/best.pt")
+model = YOLO(os.path.join(script_dir, "models/best.pt"))
 print("โหลดโมเดล YOLO สำเร็จ!")
 
 print("กำลังโหลดโมเดล EasyOCR...")
