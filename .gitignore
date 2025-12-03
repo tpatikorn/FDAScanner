@@ -10,3 +10,4 @@ uploads/image_report_fda
 test_images
 .env
 fda.sql
+__pycache__/app.cpython-313.pyc
